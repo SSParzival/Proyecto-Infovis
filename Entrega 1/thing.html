@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+  <div id="regressionPlot" style="width:800px;height:500px;"></div>
+
+  <script>
+    // Load JSON file
+    fetch("http://127.0.0.1:8000/popularidad.json")
+      .then(response => response.json())
+      .then(data => {
+        // Extract variables
+        const labels = data.map(d => d.genero);
+        const x = data.map(d => d.cantidad_animes);
+        const y = data.map(d => d.popularidad);
+
+        // --- Simple linear regression (least squares) ---
+        const n = x.length;
+        const meanX = x.reduce((a,b)=>a+b,0)/n;
+        const meanY = y.reduce((a,b)=>a+b,0)/n;
+
+        const num = x.map((xi,i)=> (xi-meanX)*(y[i]-meanY)).reduce((a,b)=>a+b,0);
+        const den = x.map(xi=> (xi-meanX)**2).reduce((a,b)=>a+b,0);
+        const slope = num/den;
+        const intercept = meanY - slope*meanX;
+
+        const yPred = x.map(xi => intercept + slope*xi);
+
+        // --- Traces ---
+        // Scatter points
+        const points = {
+          x: x,
+          y: y,
+          text: labels,
+          mode: 'markers+text',
+          type: 'scatter',
+          name: 'Observed',
+          textposition: 'top center',
+          marker: { size: 10, color: 'steelblue' }
+        };
+
+        // Regression line
+        const lineX = [Math.min(...x), Math.max(...x)];
+        const lineY = lineX.map(xi => intercept + slope*xi);
+
+        const regressionLine = {
+          x: lineX,
+          y: lineY,
+          mode: 'lines',
+          type: 'scatter',
+          name: 'Regression Line',
+          line: { color: 'black', dash: 'dash' }
+        };
+
+        // Residual lollipops (vertical segments)
+        const residualSegments = {
+          x: x.flatMap((xi,i)=> [xi, xi, null]), // each segment with null separator
+          y: y.flatMap((yi,i)=> [yi, yPred[i], null]),
+          mode: 'lines',
+          type: 'scatter',
+          name: 'Residuals',
+          line: { color: 'tomato', width: 2 }
+        };
+
+        const layout = {
+          title: "Supply vs Market Share with Regression Residuals",
+          xaxis: { title: "Supply (Titles per Genre)" },
+          yaxis: { title: "Market Share" }
+        };
+
+        Plotly.newPlot('regressionPlot', [points, regressionLine, residualSegments], layout);
+      })
+      .catch(err => console.error("Error loading JSON:", err));
+  </script>
+</body>
+</html>
