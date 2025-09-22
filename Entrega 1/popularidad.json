@@ -1,248 +1,248 @@
 [
   {
-    "genero": "Action",
-    "miembros": 525981584,
-    "popularidad": 13.17629273158592,
-    "cantidad_animes": 5652
+    "genero":"Action",
+    "popularidad":13.1762927316,
+    "proporcion":9.0961761298,
+    "residuos":4.0801166018
   },
   {
-    "genero": "Demons",
-    "miembros": 344203114,
-    "popularidad": 8.622585138242101,
-    "cantidad_animes": 6023
+    "genero":"Demons",
+    "popularidad":8.6225851382,
+    "proporcion":9.6932535084,
+    "residuos":-1.0706683702
   },
   {
-    "genero": "Police",
-    "miembros": 341949912,
-    "popularidad": 8.566140483070686,
-    "cantidad_animes": 2133
+    "genero":"Police",
+    "popularidad":8.5661404831,
+    "proporcion":3.432792584,
+    "residuos":5.1333478991
   },
   {
-    "genero": "Military",
-    "miembros": 307334075,
-    "popularidad": 7.698983884179454,
-    "cantidad_animes": 2231
+    "genero":"Military",
+    "popularidad":7.6989838842,
+    "proporcion":3.5905111369,
+    "residuos":4.1084727473
   },
   {
-    "genero": "Comedy",
-    "miembros": 271421970,
-    "popularidad": 6.799354652887869,
-    "cantidad_animes": 3097
+    "genero":"Comedy",
+    "popularidad":6.7993546529,
+    "proporcion":4.9842281447,
+    "residuos":1.8151265082
   },
   {
-    "genero": "Mecha",
-    "miembros": 268085043,
-    "popularidad": 6.715761750943354,
-    "cantidad_animes": 2189
+    "genero":"Mecha",
+    "popularidad":6.7157617509,
+    "proporcion":3.5229174714,
+    "residuos":3.1928442796
   },
   {
-    "genero": "Adventure",
-    "miembros": 242848251,
-    "popularidad": 6.083558325741026,
-    "cantidad_animes": 4417
+    "genero":"Adventure",
+    "popularidad":6.0835583257,
+    "proporcion":7.1086004892,
+    "residuos":-1.0250421635
   },
   {
-    "genero": "Space",
-    "miembros": 167171753,
-    "popularidad": 4.187796723279149,
-    "cantidad_animes": 1564
+    "genero":"Space",
+    "popularidad":4.1877967233,
+    "proporcion":2.5170593537,
+    "residuos":1.6707373696
   },
   {
-    "genero": "Music",
-    "miembros": 161155275,
-    "popularidad": 4.03707875566843,
-    "cantidad_animes": 3453
+    "genero":"Music",
+    "popularidad":4.0370787557,
+    "proporcion":5.5571649285,
+    "residuos":-1.5200861729
   },
   {
-    "genero": "Vampire",
-    "miembros": 124481069,
-    "popularidad": 3.1183582364449194,
-    "cantidad_animes": 456
+    "genero":"Vampire",
+    "popularidad":3.1183582364,
+    "proporcion":0.7338740827,
+    "residuos":2.3844841538
   },
   {
-    "genero": "Yaoi",
-    "miembros": 119472462,
-    "popularidad": 2.9928883074265102,
-    "cantidad_animes": 1092
+    "genero":"Yaoi",
+    "popularidad":2.9928883074,
+    "proporcion":1.7574353032,
+    "residuos":1.2354530042
   },
   {
-    "genero": "Boys Love",
-    "miembros": 114549127,
-    "popularidad": 2.869554515618958,
-    "cantidad_animes": 1002
+    "genero":"Boys Love",
+    "popularidad":2.8695545156,
+    "proporcion":1.6125917343,
+    "residuos":1.2569627814
   },
   {
-    "genero": "Dementia",
-    "miembros": 98346319,
-    "popularidad": 2.463660188182425,
-    "cantidad_animes": 820
+    "genero":"Dementia",
+    "popularidad":2.4636601882,
+    "proporcion":1.3196858504,
+    "residuos":1.1439743378
   },
   {
-    "genero": "Supernatural",
-    "miembros": 94745460,
-    "popularidad": 2.3734555617992217,
-    "cantidad_animes": 452
+    "genero":"Supernatural",
+    "popularidad":2.3734555618,
+    "proporcion":0.7274365907,
+    "residuos":1.6460189711
   },
   {
-    "genero": "Shounen",
-    "miembros": 84758709,
-    "popularidad": 2.1232788282095174,
-    "cantidad_animes": 482
+    "genero":"Shounen",
+    "popularidad":2.1232788282,
+    "proporcion":0.7757177804,
+    "residuos":1.3475610479
   },
   {
-    "genero": "School",
-    "miembros": 84423553,
-    "popularidad": 2.114882881086876,
-    "cantidad_animes": 720
+    "genero":"School",
+    "popularidad":2.1148828811,
+    "proporcion":1.1587485516,
+    "residuos":0.9561343295
   },
   {
-    "genero": "Sports",
-    "miembros": 70363384,
-    "popularidad": 1.7626635102285042,
-    "cantidad_animes": 739
+    "genero":"Sports",
+    "popularidad":1.7626635102,
+    "proporcion":1.1893266383,
+    "residuos":0.5733368719
   },
   {
-    "genero": "Fantasy",
-    "miembros": 63805608,
-    "popularidad": 1.5983855604435389,
-    "cantidad_animes": 1722
+    "genero":"Fantasy",
+    "popularidad":1.5983855604,
+    "proporcion":2.7713402858,
+    "residuos":-1.1729547254
   },
   {
-    "genero": "Award Winning",
-    "miembros": 50602139,
-    "popularidad": 1.2676272641294613,
-    "cantidad_animes": 640
+    "genero":"Award Winning",
+    "popularidad":1.2676272641,
+    "proporcion":1.0299987125,
+    "residuos":0.2376285516
   },
   {
-    "genero": "Game",
-    "miembros": 47542408,
-    "popularidad": 1.190978361273752,
-    "cantidad_animes": 579
+    "genero":"Game",
+    "popularidad":1.1909783613,
+    "proporcion":0.9318269602,
+    "residuos":0.2591514011
   },
   {
-    "genero": "Josei",
-    "miembros": 43886239,
-    "popularidad": 1.0993881716443186,
-    "cantidad_animes": 1317
+    "genero":"Josei",
+    "popularidad":1.0993881716,
+    "proporcion":2.1195442256,
+    "residuos":-1.0201560539
   },
   {
-    "genero": "Mystery",
-    "miembros": 40390426,
-    "popularidad": 1.0118150382418312,
-    "cantidad_animes": 516
+    "genero":"Mystery",
+    "popularidad":1.0118150382,
+    "proporcion":0.830436462,
+    "residuos":0.1813785763
   },
   {
-    "genero": "Magic",
-    "miembros": 38427874,
-    "popularidad": 0.9626514164733561,
-    "cantidad_animes": 803
+    "genero":"Magic",
+    "popularidad":0.9626514165,
+    "proporcion":1.2923265096,
+    "residuos":-0.3296750931
   },
   {
-    "genero": "Samurai",
-    "miembros": 37701053,
-    "popularidad": 0.9444439229968089,
-    "cantidad_animes": 820
+    "genero":"Samurai",
+    "popularidad":0.944443923,
+    "proporcion":1.3196858504,
+    "residuos":-0.3752419274
   },
   {
-    "genero": "Slice of Life",
-    "miembros": 34118829,
-    "popularidad": 0.8547061194502257,
-    "cantidad_animes": 1597
+    "genero":"Slice of Life",
+    "popularidad":0.8547061195,
+    "proporcion":2.5701686623,
+    "residuos":-1.7154625428
   },
   {
-    "genero": "Kids",
-    "miembros": 29970223,
-    "popularidad": 0.7507799578756909,
-    "cantidad_animes": 5110
+    "genero":"Kids",
+    "popularidad":0.7507799579,
+    "proporcion":8.2238959701,
+    "residuos":-7.4731160123
   },
   {
-    "genero": "Sci-Fi",
-    "miembros": 29421404,
-    "popularidad": 0.7370315681589584,
-    "cantidad_animes": 179
+    "genero":"Sci-Fi",
+    "popularidad":0.7370315682,
+    "proporcion":0.2880777649,
+    "residuos":0.4489538033
   },
   {
-    "genero": "Horror",
-    "miembros": 26489974,
-    "popularidad": 0.6635967161087906,
-    "cantidad_animes": 708
+    "genero":"Horror",
+    "popularidad":0.6635967161,
+    "proporcion":1.1394360757,
+    "residuos":-0.4758393596
   },
   {
-    "genero": "Super Power",
-    "miembros": 20940272,
-    "popularidad": 0.5245718902413742,
-    "cantidad_animes": 314
+    "genero":"Super Power",
+    "popularidad":0.5245718902,
+    "proporcion":0.5053431183,
+    "residuos":0.0192287719
   },
   {
-    "genero": "Romance",
-    "miembros": 16127285,
-    "popularidad": 0.4040024110914777,
-    "cantidad_animes": 672
+    "genero":"Romance",
+    "popularidad":0.4040024111,
+    "proporcion":1.0814986481,
+    "residuos":-0.677496237
   },
   {
-    "genero": "Martial Arts",
-    "miembros": 16026684,
-    "popularidad": 0.4014822691978971,
-    "cantidad_animes": 252
+    "genero":"Martial Arts",
+    "popularidad":0.4014822692,
+    "proporcion":0.405561993,
+    "residuos":-0.0040797238
   },
   {
-    "genero": "Drama",
-    "miembros": 14173950,
-    "popularidad": 0.35506968312955656,
-    "cantidad_animes": 338
+    "genero":"Drama",
+    "popularidad":0.3550696831,
+    "proporcion":0.54396807,
+    "residuos":-0.1888983869
   },
   {
-    "genero": "Ecchi",
-    "miembros": 12429635,
-    "popularidad": 0.31137308660366697,
-    "cantidad_animes": 1592
+    "genero":"Ecchi",
+    "popularidad":0.3113730866,
+    "proporcion":2.5621217973,
+    "residuos":-2.2507487107
   },
   {
-    "genero": "Avant Garde",
-    "miembros": 11622811,
-    "popularidad": 0.29116144891471496,
-    "cantidad_animes": 1064
+    "genero":"Avant Garde",
+    "popularidad":0.2911614489,
+    "proporcion":1.7123728595,
+    "residuos":-1.4212114106
   },
   {
-    "genero": "Harem",
-    "miembros": 10928279,
-    "popularidad": 0.27376282276157227,
-    "cantidad_animes": 6914
+    "genero":"Harem",
+    "popularidad":0.2737628228,
+    "proporcion":11.127204841,
+    "residuos":-10.8534420182
   },
   {
-    "genero": "Yuri",
-    "miembros": 10770355,
-    "popularidad": 0.2698066902340445,
-    "cantidad_animes": 159
+    "genero":"Yuri",
+    "popularidad":0.2698066902,
+    "proporcion":0.2558903051,
+    "residuos":0.0139163851
   },
   {
-    "genero": "Psychological",
-    "miembros": 7940330,
-    "popularidad": 0.19891212097150843,
-    "cantidad_animes": 197
+    "genero":"Psychological",
+    "popularidad":0.198912121,
+    "proporcion":0.3170464787,
+    "residuos":-0.1181343577
   },
   {
-    "genero": "Parody",
-    "miembros": 7271566,
-    "popularidad": 0.18215900546253214,
-    "cantidad_animes": 121
+    "genero":"Parody",
+    "popularidad":0.1821590055,
+    "proporcion":0.1947341316,
+    "residuos":-0.0125751261
   },
   {
-    "genero": "Historical",
-    "miembros": 0,
-    "popularidad": 0,
-    "cantidad_animes": 0
+    "genero":"Historical",
+    "popularidad":0.0,
+    "proporcion":0.0,
+    "residuos":0.0
   },
   {
-    "genero": "Shoujo",
-    "miembros": 0,
-    "popularidad": 0,
-    "cantidad_animes": 0
+    "genero":"Shoujo",
+    "popularidad":0.0,
+    "proporcion":0.0,
+    "residuos":0.0
   },
   {
-    "genero": "Seinen",
-    "miembros": 0,
-    "popularidad": 0,
-    "cantidad_animes": 0
+    "genero":"Seinen",
+    "popularidad":0.0,
+    "proporcion":0.0,
+    "residuos":0.0
   }
 ]

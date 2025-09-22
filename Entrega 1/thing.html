@@ -13,7 +13,7 @@
       .then(data => {
         // Extract variables
         const labels = data.map(d => d.genero);
-        const x = data.map(d => d.cantidad_animes);
+        const x = data.map(d => d.proporcion);
         const y = data.map(d => d.popularidad);
 
         // --- Simple linear regression (least squares) ---
