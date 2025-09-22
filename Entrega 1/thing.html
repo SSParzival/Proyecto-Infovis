@@ -11,6 +11,8 @@
     fetch("http://127.0.0.1:8000/popularidad.json")
       .then(response => response.json())
       .then(data => {
+        // Nota: hay que desactivar la cache en "Network" en DevTools para que recargue el JSON
+        console.log(data);
         // Extract variables
         const labels = data.map(d => d.genero);
         const x = data.map(d => d.proporcion);
