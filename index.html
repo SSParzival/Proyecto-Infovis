@@ -1,16 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Roboto', sans-serif;
+      background-color: wheat;
+    }
+    .center {
+      margin: auto;
+      width: 50%;
     }
   </style>
 </head>
 <body>
-  <div id="regressionPlot" style="width:1024px;height:768px;"></div>
+  <div class="center" id="regressionPlot" style="width:1024px;height:800px;"></div>
 
   <script>
     // Load JSON file
@@ -148,7 +154,6 @@
         }));
 
         const layout = {
-          title: "Supply vs Market Share with Regression Residuals",
           xaxis: {
             showgrid: false,
             tickformat: ',.0%',
@@ -158,64 +163,86 @@
             tickformat: ',.0%',
           },
           annotations: [
-            {
-              text: 'This is a subtitle',
+            { // TITULO
+              text: "Oferta y demanda en géneros de anime:<br>¿qué tan alineados están?",
+              font: { size: 36, color: "black", family: "Roboto" },
+              xref: 'paper',
+              yref: 'paper',
+              x: 0.5,
+              y: 1.17,
+              showarrow: false,
+              xanchor: "center",
+              yanchor: "bottom",
+            },
+            { // SUB-TITULO
+              text: 'Action destaca por una demanda muy superior a su oferta,<br>\
+mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda.',
               xref: 'paper',
               yref: 'paper',
               x: 0.5,     // center horizontally
-              y: 1.05,    // slightly below the title
+              y: 1.07,    // slightly below the title
               showarrow: false,
+              xanchor: "center",
+              yanchor: "bottom",
               font: {size: 16, color: 'gray'}
             },
-            {
-              text: "Top-left region",
+            { // ESQUINA SUPERIOR IZQUIERDA
+              text: "Mayor demanda<br>que oferta",
               xref: "paper",
               yref: "paper",
               x: 0.1,   // near left
-              y: 0.9,   // near top
+              y: 0.85,   // near top
               showarrow: false,
-              font: { size: 18, color: "blue" }
+              font: { size: 24, color: "blue", family: "Roboto" }
             },
-            {
-              text: "Bottom-right region",
+            { // ESQUINA INFERIOR DERECHA
+              text: "Mayor oferta<br>que demanda<br> ",
               xref: "paper",
               yref: "paper",
               x: 0.9,   // near right
-              y: 0.1,   // near bottom
+              y: 0.15,   // near bottom
+              xanchor: "right",
+              yanchor: "bottom",
               showarrow: false,
-              font: { size: 18, color: "red" }
+              font: { size: 24, color: "red", family: "Roboto" }
             },
-            {
+            { // EJE Y
+              text: "<b>Demanda de animes por género<br>(% de audiencia)</b>",
               xref: "paper",
               yref: "paper",
-              x: -0.08,
-              y: 1.05,
+              x: 0.00,
+              y: 1.04,
               xanchor: "left",
-              yanchor: "top",
-              text: "<b>Salario anual de la mujer</b>",
-              font: { family: "Arial", size: 14, color: "rgb(10,10,10)" },
+              yanchor: "center",
+              font: { family: "Roboto", size: 14, color: "rgb(10,10,10)" },
               showarrow: false,
             },
-            {
+            { // EJE X
+              text: "<b>Oferta de animes por género (%)</b>",
               xref: "paper",
               yref: "paper",
-              x: 0,
+              x: 0.5,
               y: -0.05,
-              xanchor: "left",
+              xanchor: "center",
               yanchor: "top",
-              text: "<b>Salario anual del hombre</b>",
-              font: { family: "Arial", size: 14, color: "rgb(10,10,10)" },
+              font: { family: "Roboto", size: 14, color: "rgb(10,10,10)" },
               showarrow: false,
             },{
               x: 0.3,
               y: 0.31,
-              text: "<b>Salario igual</b>",
+              text: "<b>Oferta = Demanda</b>",
               showarrow: false,
               textangle: -30,
               font: { size: 14 },
             },
           ],
-          showlegend: false
+          showlegend: false,
+          margin: {
+              l: 40,   // left
+              r: 40,   // right
+              t: 190,  // top (increase this!)
+              b: 60    // bottom
+            }
         };
 
         Plotly.newPlot('regressionPlot', [regressionLine, ...points, ...residualSegments],
