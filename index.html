@@ -7,7 +7,7 @@
   <style>
     body {
       font-family: 'Roboto', sans-serif;
-      background-color: wheat;
+      background-color: white;
     }
     .center {
       margin: auto;
@@ -16,7 +16,7 @@
   </style>
 </head>
 <body>
-  <div class="center" id="regressionPlot" style="width:1024px;height:800px;"></div>
+  <div class="center" id="regressionPlot" style="width:1224px;height:800px;"></div>
 
   <script>
     // Load JSON file
@@ -39,7 +39,8 @@
         // --- Traces ---
 
         // Regression line
-        const lineX = [0, Math.max(...y)];
+        const maxval = Math.max(...y);
+        const lineX = [0, maxval];
         const lineY = lineX;
 
         const regressionLine = {
@@ -67,77 +68,19 @@
 
         // Scatter points
         const points = x.map((d,i) => {
-          // Format label with residual percentage
-          const label = `${labels[i]}<br>${r[i].toFixed(3)*100}%`;
-
-          // Pick position depending on residual
-          let pos;
-          if (r[i] > 1) {
-            pos = 'top center';
-          } else if (r[i] < -1) {
-            pos = 'bottom center';
-          } else {
-            pos = 'bottom right';
-          }
-
-          let mode_spec;
-          if (Math.abs(r[i]) > 0.09) {
-            mode_spec = 'markers+text';
-          } else {
-            mode_spec = 'markers';
-          }
-
           return {
             x: [x[i]],
             y: [y[i]],
-            text: [label],
-            mode: mode_spec,
+            mode: 'markers',
             type: 'scatter',
             name: 'Observed',
-            textposition: pos,
             marker: {
-              size: 5 + Math.abs(r[i]) / 2,
-              color: colorScale(r[i], minVal, maxVal, zeroPos)
-            },
-            textfont: {
-              family: '<b>Roboto</b>', // bold-ish font
-              size: 12,                          // font size in px
+              size: 5 + Math.abs(r[i])*100/2,
               color: colorScale(r[i], minVal, maxVal, zeroPos)
             },
             showlegend: false // avoid repeating "Observed" in legend
           };
         });
-
-        // const diagonalLabels = x.map((d,i) => {
-        //   // Format label with residual percentage
-        //   const label = `${x[i].toFixed(1)}%`;
-
-        //   // Pick position depending on residual
-        //   let pos;
-        //   if (r[i] > 1) {
-        //     pos = 'bottom center';
-        //   } else if (r[i] < -1) {
-        //     pos = 'top center';
-        //   } else {
-        //     pos = 'right';
-        //   }
-
-        //   return {
-        //     x: [x[i]],
-        //     y: [x[i]],
-        //     text: [label],
-        //     mode: 'text',
-        //     name: 'Observed',
-        //     textposition: pos,
-        //     showlegend: false,
-        //     hoverinfo: 'skip',         // don’t clutter hover
-        //     textfont: {
-        //       family: 'Roboto', // bold-ish font
-        //       size: 9,                          // font size in px
-        //       color: 'Black'                  // text color
-        //     },
-        //   };
-        // });
 
         // Generate one trace per residual
         const residualSegments = x.map((d,i) => ({
@@ -153,14 +96,26 @@
           hoverinfo: 'skip'
         }));
 
+        const color_action = colorScale(r[0], minVal, maxVal, zeroPos);
+        const color_kids = colorScale(r[5], minVal, maxVal, zeroPos);
+        const color_harem = colorScale(r[6], minVal, maxVal, zeroPos);
+
+        const action_label = `<b>Action</b> (<span style="color:${color_action};">+${r[0].toFixed(2)*100}%</span>)`;
+        const kids_label = `<b>Kids</b> (<span style="color:${color_kids};">${r[5].toFixed(2)*100}%</span>)`;
+        const harem_label = `<b>Harem</b> (<span style="color:${color_harem};">${r[6].toFixed(2)*100}%</span>)`;
+
         const layout = {
           xaxis: {
             showgrid: false,
             tickformat: ',.0%',
+            range: [0, maxval+0.01],
+            tickvals: [0.05, 0.10, 0.15, 0.20, 0.25, 0.3]
           },
           yaxis: {
             showgrid: false,
             tickformat: ',.0%',
+            range: [0, maxval+0.01],
+            tickvals: [0.05, 0.10, 0.15, 0.20, 0.25, 0.3]
           },
           annotations: [
             { // TITULO
@@ -200,17 +155,17 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
               xref: "paper",
               yref: "paper",
               x: 0.9,   // near right
-              y: 0.15,   // near bottom
+              y: 0.29,   // near bottom
               xanchor: "right",
               yanchor: "bottom",
               showarrow: false,
               font: { size: 24, color: "red", family: "Roboto" }
             },
             { // EJE Y
-              text: "<b>Demanda de animes por género<br>(% de audiencia)</b>",
+              text: "<b>Demanda de animes por género</b>",
               xref: "paper",
               yref: "paper",
-              x: 0.00,
+              x: -0.105,
               y: 1.04,
               xanchor: "left",
               yanchor: "center",
@@ -218,7 +173,7 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
               showarrow: false,
             },
             { // EJE X
-              text: "<b>Oferta de animes por género (%)</b>",
+              text: "<b>Oferta de animes por género</b>",
               xref: "paper",
               yref: "paper",
               x: 0.5,
@@ -227,19 +182,78 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
               yanchor: "top",
               font: { family: "Roboto", size: 14, color: "rgb(10,10,10)" },
               showarrow: false,
-            },{
-              x: 0.3,
-              y: 0.31,
+            },{ // DIAGONAL
+              x: 0.235,
+              y: 0.247,
               text: "<b>Oferta = Demanda</b>",
               showarrow: false,
               textangle: -30,
-              font: { size: 14 },
+              font: { size: 15 },
             },
+            { // FLECHITA ACTION
+              x: 0.167,               // the point you want to point to
+              y: 0.329,
+              xref: 'x',          // use 'x'/'y' for data coordinates
+              yref: 'y',
+              showarrow: true,    // enables the arrow
+              arrowhead: 3,       // style of the arrow
+              arrowsize: 1,       // size of the arrow
+              ax: 90,             // x-offset of text relative to point
+              ay: 20,            // y-offset of text relative to point
+              text: action_label,  // label text
+              font: {
+                family: "Roboto",
+                size: 25,
+                color: "rgb(10,10,10)"
+              },
+              xanchor: "left",
+              yanchor: "center",
+              arrowcolor: 'black'
+            },{ // FLECHITA KIDS  
+              x: 0.145,               // the point you want to point to
+              y: 0.0188,
+              xref: 'x',          // use 'x'/'y' for data coordinates
+              yref: 'y',
+              showarrow: true,    // enables the arrow
+              arrowhead: 3,       // style of the arrow
+              arrowsize: 1,       // size of the arrow
+              ax: -90,             // x-offset of text relative to point
+              ay: -0,            // y-offset of text relative to point
+              text: kids_label,  // label text
+              font: {
+                family: "Roboto",
+                size: 25,
+                color: "rgb(10,10,10)"
+              },
+              xanchor: "right",
+              yanchor: "center",
+              arrowcolor: 'black'
+            },{ // FLECHITA HAREM
+              x: 0.203,               // the point you want to point to
+              y: 0.012,
+              xref: 'x',          // use 'x'/'y' for data coordinates
+              yref: 'y',
+              showarrow: true,    // enables the arrow
+              arrowhead: 3,       // style of the arrow
+              arrowsize: 1,       // size of the arrow
+              ax: 62,             // x-offset of text relative to point
+              ay: -12,            // y-offset of text relative to point
+              text: harem_label,  // label text
+              font: {
+                family: "Roboto",
+                size: 25,
+                color: "rgb(10,10,10)"
+              },
+              xanchor: "left",
+              yanchor: "center",
+              arrowcolor: 'black'
+            },
+            
           ],
           showlegend: false,
           margin: {
-              l: 40,   // left
-              r: 40,   // right
+              l: 140,   // left
+              r: 140,   // right
               t: 190,  // top (increase this!)
               b: 60    // bottom
             }
