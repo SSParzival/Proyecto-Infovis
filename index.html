@@ -2,9 +2,15 @@
 <html>
 <head>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+    }
+  </style>
 </head>
 <body>
-  <div id="regressionPlot" style="width:600px;height:650px;"></div>
+  <div id="regressionPlot" style="width:1024px;height:768px;"></div>
 
   <script>
     // Load JSON file
@@ -27,7 +33,7 @@
         // --- Traces ---
 
         // Regression line
-        const lineX = [0, Math.max(...x)];
+        const lineX = [0, Math.max(...y)];
         const lineY = lineX;
 
         const regressionLine = {
@@ -36,7 +42,7 @@
           mode: 'lines',
           type: 'scatter',
           name: 'Regression Line',
-          line: { color: 'black', dash: 'dash' }
+          line: { color: 'black' }
         };
 
         // Residual lollipops (vertical segments)
@@ -56,7 +62,7 @@
         // Scatter points
         const points = x.map((d,i) => {
           // Format label with residual percentage
-          const label = `${labels[i]}<br>${r[i].toFixed(1)}%`;
+          const label = `${labels[i]}<br>${r[i].toFixed(3)*100}%`;
 
           // Pick position depending on residual
           let pos;
@@ -68,11 +74,18 @@
             pos = 'bottom right';
           }
 
+          let mode_spec;
+          if (Math.abs(r[i]) > 0.09) {
+            mode_spec = 'markers+text';
+          } else {
+            mode_spec = 'markers';
+          }
+
           return {
             x: [x[i]],
             y: [y[i]],
             text: [label],
-            mode: 'markers+text',
+            mode: mode_spec,
             type: 'scatter',
             name: 'Observed',
             textposition: pos,
@@ -81,7 +94,7 @@
               color: colorScale(r[i], minVal, maxVal, zeroPos)
             },
             textfont: {
-              family: 'Arial Bold', // bold-ish font
+              family: '<b>Roboto</b>', // bold-ish font
               size: 12,                          // font size in px
               color: colorScale(r[i], minVal, maxVal, zeroPos)
             },
@@ -89,36 +102,36 @@
           };
         });
 
-        const diagonalLabels = x.map((d,i) => {
-          // Format label with residual percentage
-          const label = `${x[i].toFixed(1)}%`;
+        // const diagonalLabels = x.map((d,i) => {
+        //   // Format label with residual percentage
+        //   const label = `${x[i].toFixed(1)}%`;
 
-          // Pick position depending on residual
-          let pos;
-          if (r[i] > 1) {
-            pos = 'bottom center';
-          } else if (r[i] < -1) {
-            pos = 'top center';
-          } else {
-            pos = 'right';
-          }
+        //   // Pick position depending on residual
+        //   let pos;
+        //   if (r[i] > 1) {
+        //     pos = 'bottom center';
+        //   } else if (r[i] < -1) {
+        //     pos = 'top center';
+        //   } else {
+        //     pos = 'right';
+        //   }
 
-          return {
-            x: [x[i]],
-            y: [x[i]],
-            text: [label],
-            mode: 'text',
-            name: 'Observed',
-            textposition: pos,
-            showlegend: false,
-            hoverinfo: 'skip',         // don’t clutter hover
-            textfont: {
-              family: 'Arial', // bold-ish font
-              size: 9,                          // font size in px
-              color: 'Black'                  // text color
-            },
-          };
-        });
+        //   return {
+        //     x: [x[i]],
+        //     y: [x[i]],
+        //     text: [label],
+        //     mode: 'text',
+        //     name: 'Observed',
+        //     textposition: pos,
+        //     showlegend: false,
+        //     hoverinfo: 'skip',         // don’t clutter hover
+        //     textfont: {
+        //       family: 'Roboto', // bold-ish font
+        //       size: 9,                          // font size in px
+        //       color: 'Black'                  // text color
+        //     },
+        //   };
+        // });
 
         // Generate one trace per residual
         const residualSegments = x.map((d,i) => ({
@@ -136,11 +149,77 @@
 
         const layout = {
           title: "Supply vs Market Share with Regression Residuals",
-          xaxis: { title: "Supply (Titles per Genre)" },
-          yaxis: { title: "Market Share" }
+          xaxis: {
+            showgrid: false,
+            tickformat: ',.0%',
+          },
+          yaxis: {
+            showgrid: false,
+            tickformat: ',.0%',
+          },
+          annotations: [
+            {
+              text: 'This is a subtitle',
+              xref: 'paper',
+              yref: 'paper',
+              x: 0.5,     // center horizontally
+              y: 1.05,    // slightly below the title
+              showarrow: false,
+              font: {size: 16, color: 'gray'}
+            },
+            {
+              text: "Top-left region",
+              xref: "paper",
+              yref: "paper",
+              x: 0.1,   // near left
+              y: 0.9,   // near top
+              showarrow: false,
+              font: { size: 18, color: "blue" }
+            },
+            {
+              text: "Bottom-right region",
+              xref: "paper",
+              yref: "paper",
+              x: 0.9,   // near right
+              y: 0.1,   // near bottom
+              showarrow: false,
+              font: { size: 18, color: "red" }
+            },
+            {
+              xref: "paper",
+              yref: "paper",
+              x: -0.08,
+              y: 1.05,
+              xanchor: "left",
+              yanchor: "top",
+              text: "<b>Salario anual de la mujer</b>",
+              font: { family: "Arial", size: 14, color: "rgb(10,10,10)" },
+              showarrow: false,
+            },
+            {
+              xref: "paper",
+              yref: "paper",
+              x: 0,
+              y: -0.05,
+              xanchor: "left",
+              yanchor: "top",
+              text: "<b>Salario anual del hombre</b>",
+              font: { family: "Arial", size: 14, color: "rgb(10,10,10)" },
+              showarrow: false,
+            },{
+              x: 0.3,
+              y: 0.31,
+              text: "<b>Salario igual</b>",
+              showarrow: false,
+              textangle: -30,
+              font: { size: 14 },
+            },
+          ],
+          showlegend: false
         };
 
-        Plotly.newPlot('regressionPlot', [regressionLine, ...points, ...residualSegments, ...diagonalLabels], layout);
+        Plotly.newPlot('regressionPlot', [regressionLine, ...points, ...residualSegments],
+        layout, {staticPlot: true});
       })
       .catch(err => console.error("Error loading JSON:", err));
   </script>

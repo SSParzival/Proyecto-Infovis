@@ -1,44 +1,44 @@
 [
   {
     "genero":"Action",
-    "popularidad":33.1534006291,
-    "proporcion":16.3041596954,
-    "residuos":16.8492409337
+    "popularidad":0.3315340063,
+    "proporcion":0.163041597,
+    "residuos":0.1684924093
   },
   {
     "genero":"Demons",
-    "popularidad":21.6956336179,
-    "proporcion":17.3743725841,
-    "residuos":4.3212610338
+    "popularidad":0.2169563362,
+    "proporcion":0.1737437258,
+    "residuos":0.0432126103
   },
   {
     "genero":"Comedy",
-    "popularidad":17.1081299891,
-    "proporcion":8.9338256505,
-    "residuos":8.1743043386
+    "popularidad":0.1710812999,
+    "proporcion":0.0893382565,
+    "residuos":0.0817430434
   },
   {
     "genero":"Adventure",
-    "popularidad":15.3070860319,
-    "proporcion":12.7415911844,
-    "residuos":2.5654948474
+    "popularidad":0.1530708603,
+    "proporcion":0.1274159118,
+    "residuos":0.0256549485
   },
   {
     "genero":"Music",
-    "popularidad":10.1578563929,
-    "proporcion":9.9607684763,
-    "residuos":0.1970879165
+    "popularidad":0.1015785639,
+    "proporcion":0.0996076848,
+    "residuos":0.0019708792
   },
   {
     "genero":"Kids",
-    "popularidad":1.889067679,
-    "proporcion":14.7406680898,
-    "residuos":-12.8516004108
+    "popularidad":0.0188906768,
+    "proporcion":0.1474066809,
+    "residuos":-0.1285160041
   },
   {
     "genero":"Harem",
-    "popularidad":0.6888256602,
-    "proporcion":19.9446143195,
-    "residuos":-19.2557886593
+    "popularidad":0.0068882566,
+    "proporcion":0.1994461432,
+    "residuos":-0.1925578866
   }
 ]
