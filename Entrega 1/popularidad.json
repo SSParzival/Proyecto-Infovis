@@ -1,248 +1,44 @@
 [
   {
     "genero":"Action",
-    "popularidad":13.1762927316,
-    "proporcion":9.0961761298,
-    "residuos":4.0801166018
+    "popularidad":33.1534006291,
+    "proporcion":16.3041596954,
+    "residuos":16.8492409337
   },
   {
     "genero":"Demons",
-    "popularidad":8.6225851382,
-    "proporcion":9.6932535084,
-    "residuos":-1.0706683702
-  },
-  {
-    "genero":"Police",
-    "popularidad":8.5661404831,
-    "proporcion":3.432792584,
-    "residuos":5.1333478991
-  },
-  {
-    "genero":"Military",
-    "popularidad":7.6989838842,
-    "proporcion":3.5905111369,
-    "residuos":4.1084727473
+    "popularidad":21.6956336179,
+    "proporcion":17.3743725841,
+    "residuos":4.3212610338
   },
   {
     "genero":"Comedy",
-    "popularidad":6.7993546529,
-    "proporcion":4.9842281447,
-    "residuos":1.8151265082
-  },
-  {
-    "genero":"Mecha",
-    "popularidad":6.7157617509,
-    "proporcion":3.5229174714,
-    "residuos":3.1928442796
+    "popularidad":17.1081299891,
+    "proporcion":8.9338256505,
+    "residuos":8.1743043386
   },
   {
     "genero":"Adventure",
-    "popularidad":6.0835583257,
-    "proporcion":7.1086004892,
-    "residuos":-1.0250421635
-  },
-  {
-    "genero":"Space",
-    "popularidad":4.1877967233,
-    "proporcion":2.5170593537,
-    "residuos":1.6707373696
+    "popularidad":15.3070860319,
+    "proporcion":12.7415911844,
+    "residuos":2.5654948474
   },
   {
     "genero":"Music",
-    "popularidad":4.0370787557,
-    "proporcion":5.5571649285,
-    "residuos":-1.5200861729
-  },
-  {
-    "genero":"Vampire",
-    "popularidad":3.1183582364,
-    "proporcion":0.7338740827,
-    "residuos":2.3844841538
-  },
-  {
-    "genero":"Yaoi",
-    "popularidad":2.9928883074,
-    "proporcion":1.7574353032,
-    "residuos":1.2354530042
-  },
-  {
-    "genero":"Boys Love",
-    "popularidad":2.8695545156,
-    "proporcion":1.6125917343,
-    "residuos":1.2569627814
-  },
-  {
-    "genero":"Dementia",
-    "popularidad":2.4636601882,
-    "proporcion":1.3196858504,
-    "residuos":1.1439743378
-  },
-  {
-    "genero":"Supernatural",
-    "popularidad":2.3734555618,
-    "proporcion":0.7274365907,
-    "residuos":1.6460189711
-  },
-  {
-    "genero":"Shounen",
-    "popularidad":2.1232788282,
-    "proporcion":0.7757177804,
-    "residuos":1.3475610479
-  },
-  {
-    "genero":"School",
-    "popularidad":2.1148828811,
-    "proporcion":1.1587485516,
-    "residuos":0.9561343295
-  },
-  {
-    "genero":"Sports",
-    "popularidad":1.7626635102,
-    "proporcion":1.1893266383,
-    "residuos":0.5733368719
-  },
-  {
-    "genero":"Fantasy",
-    "popularidad":1.5983855604,
-    "proporcion":2.7713402858,
-    "residuos":-1.1729547254
-  },
-  {
-    "genero":"Award Winning",
-    "popularidad":1.2676272641,
-    "proporcion":1.0299987125,
-    "residuos":0.2376285516
-  },
-  {
-    "genero":"Game",
-    "popularidad":1.1909783613,
-    "proporcion":0.9318269602,
-    "residuos":0.2591514011
-  },
-  {
-    "genero":"Josei",
-    "popularidad":1.0993881716,
-    "proporcion":2.1195442256,
-    "residuos":-1.0201560539
-  },
-  {
-    "genero":"Mystery",
-    "popularidad":1.0118150382,
-    "proporcion":0.830436462,
-    "residuos":0.1813785763
-  },
-  {
-    "genero":"Magic",
-    "popularidad":0.9626514165,
-    "proporcion":1.2923265096,
-    "residuos":-0.3296750931
-  },
-  {
-    "genero":"Samurai",
-    "popularidad":0.944443923,
-    "proporcion":1.3196858504,
-    "residuos":-0.3752419274
-  },
-  {
-    "genero":"Slice of Life",
-    "popularidad":0.8547061195,
-    "proporcion":2.5701686623,
-    "residuos":-1.7154625428
+    "popularidad":10.1578563929,
+    "proporcion":9.9607684763,
+    "residuos":0.1970879165
   },
   {
     "genero":"Kids",
-    "popularidad":0.7507799579,
-    "proporcion":8.2238959701,
-    "residuos":-7.4731160123
-  },
-  {
-    "genero":"Sci-Fi",
-    "popularidad":0.7370315682,
-    "proporcion":0.2880777649,
-    "residuos":0.4489538033
-  },
-  {
-    "genero":"Horror",
-    "popularidad":0.6635967161,
-    "proporcion":1.1394360757,
-    "residuos":-0.4758393596
-  },
-  {
-    "genero":"Super Power",
-    "popularidad":0.5245718902,
-    "proporcion":0.5053431183,
-    "residuos":0.0192287719
-  },
-  {
-    "genero":"Romance",
-    "popularidad":0.4040024111,
-    "proporcion":1.0814986481,
-    "residuos":-0.677496237
-  },
-  {
-    "genero":"Martial Arts",
-    "popularidad":0.4014822692,
-    "proporcion":0.405561993,
-    "residuos":-0.0040797238
-  },
-  {
-    "genero":"Drama",
-    "popularidad":0.3550696831,
-    "proporcion":0.54396807,
-    "residuos":-0.1888983869
-  },
-  {
-    "genero":"Ecchi",
-    "popularidad":0.3113730866,
-    "proporcion":2.5621217973,
-    "residuos":-2.2507487107
-  },
-  {
-    "genero":"Avant Garde",
-    "popularidad":0.2911614489,
-    "proporcion":1.7123728595,
-    "residuos":-1.4212114106
+    "popularidad":1.889067679,
+    "proporcion":14.7406680898,
+    "residuos":-12.8516004108
   },
   {
     "genero":"Harem",
-    "popularidad":0.2737628228,
-    "proporcion":11.127204841,
-    "residuos":-10.8534420182
-  },
-  {
-    "genero":"Yuri",
-    "popularidad":0.2698066902,
-    "proporcion":0.2558903051,
-    "residuos":0.0139163851
-  },
-  {
-    "genero":"Psychological",
-    "popularidad":0.198912121,
-    "proporcion":0.3170464787,
-    "residuos":-0.1181343577
-  },
-  {
-    "genero":"Parody",
-    "popularidad":0.1821590055,
-    "proporcion":0.1947341316,
-    "residuos":-0.0125751261
-  },
-  {
-    "genero":"Historical",
-    "popularidad":0.0,
-    "proporcion":0.0,
-    "residuos":0.0
-  },
-  {
-    "genero":"Shoujo",
-    "popularidad":0.0,
-    "proporcion":0.0,
-    "residuos":0.0
-  },
-  {
-    "genero":"Seinen",
-    "popularidad":0.0,
-    "proporcion":0.0,
-    "residuos":0.0
+    "popularidad":0.6888256602,
+    "proporcion":19.9446143195,
+    "residuos":-19.2557886593
   }
 ]
