@@ -49,7 +49,7 @@
           mode: 'lines',
           type: 'scatter',
           name: 'Regression Line',
-          line: { color: 'black' }
+          line: { color: 'black', width: 1, dash: 'dash' }
         };
 
         // Residual lollipops (vertical segments)
@@ -119,12 +119,12 @@
           },
           annotations: [
             { // TITULO
-              text: "Oferta y demanda en géneros de anime:<br>¿qué tan alineados están?",
-              font: { size: 36, color: "black", family: "Roboto" },
+              text: "Oferta y demanda en géneros de anime: ¿qué tan alineados están?",
+              font: { size: 32, color: "black", family: "Roboto" },
               xref: 'paper',
               yref: 'paper',
               x: 0.5,
-              y: 1.17,
+              y: 1.23,
               showarrow: false,
               xanchor: "center",
               yanchor: "bottom",
@@ -135,18 +135,18 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
               xref: 'paper',
               yref: 'paper',
               x: 0.5,     // center horizontally
-              y: 1.07,    // slightly below the title
+              y: 1.10,    // slightly below the title
               showarrow: false,
               xanchor: "center",
               yanchor: "bottom",
-              font: {size: 16, color: 'gray'}
+              font: {size: 20, color: 'black'}
             },
             { // ESQUINA SUPERIOR IZQUIERDA
               text: "Mayor demanda<br>que oferta",
               xref: "paper",
               yref: "paper",
-              x: 0.1,   // near left
-              y: 0.85,   // near top
+              x: 0.79,   // near left
+              y: 0.97,   // near top
               showarrow: false,
               font: { size: 24, color: "blue", family: "Roboto" }
             },
@@ -154,8 +154,8 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
               text: "Mayor oferta<br>que demanda<br> ",
               xref: "paper",
               yref: "paper",
-              x: 0.9,   // near right
-              y: 0.29,   // near bottom
+              x: 0.97,   // near right
+              y: 0.59,   // near bottom
               xanchor: "right",
               yanchor: "bottom",
               showarrow: false,
@@ -191,22 +191,22 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
               font: { size: 15 },
             },
             { // FLECHITA ACTION
-              x: 0.167,               // the point you want to point to
-              y: 0.329,
+              x: 0.160,               // the point you want to point to
+              y: 0.332,
               xref: 'x',          // use 'x'/'y' for data coordinates
               yref: 'y',
               showarrow: true,    // enables the arrow
               arrowhead: 3,       // style of the arrow
               arrowsize: 1,       // size of the arrow
-              ax: 90,             // x-offset of text relative to point
-              ay: 20,            // y-offset of text relative to point
+              ax: -90,             // x-offset of text relative to point
+              ay: 0,            // y-offset of text relative to point
               text: action_label,  // label text
               font: {
                 family: "Roboto",
                 size: 25,
                 color: "rgb(10,10,10)"
               },
-              xanchor: "left",
+              xanchor: "right",
               yanchor: "center",
               arrowcolor: 'black'
             },{ // FLECHITA KIDS  
@@ -230,14 +230,14 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
               arrowcolor: 'black'
             },{ // FLECHITA HAREM
               x: 0.203,               // the point you want to point to
-              y: 0.012,
+              y: 0.008,
               xref: 'x',          // use 'x'/'y' for data coordinates
               yref: 'y',
               showarrow: true,    // enables the arrow
               arrowhead: 3,       // style of the arrow
               arrowsize: 1,       // size of the arrow
-              ax: 62,             // x-offset of text relative to point
-              ay: -12,            // y-offset of text relative to point
+              ax: 70,             // x-offset of text relative to point
+              ay: -24,            // y-offset of text relative to point
               text: harem_label,  // label text
               font: {
                 family: "Roboto",
@@ -256,7 +256,45 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
               r: 140,   // right
               t: 190,  // top (increase this!)
               b: 60    // bottom
+            },
+          images: [
+            {
+              source: "Entrega 1/goku.png", // PNG URL or base64
+              xref: "x",
+              yref: "y",
+              x: 0.105,      // anchor x-coordinate
+              y: 0.315,     // anchor y-coordinate
+              sizex: 0.04,  // width in data units
+              sizey: 0.2,  // height in data units
+              sizing: "contain",  // "stretch", "contain", or "fill"
+              opacity: 1,
+              layer: "above"  // or "below"
+            },
+            {
+              source: "Entrega 1/quint.png", // PNG URL or base64
+              xref: "x",
+              yref: "y",
+              x: 0.225,      // anchor x-coordinate
+              y: 0.181,     // anchor y-coordinate
+              sizex: 0.0617,  // width in data units
+              sizey: 0.3,  // height in data units
+              sizing: "contain",  // "stretch", "contain", or "fill"
+              opacity: 1,
+              layer: "above"  // or "below"
+            },
+            {
+              source: "Entrega 1/doraemon.png", // PNG URL or base64
+              xref: "x",
+              yref: "y",
+              x: 0.11,      // anchor x-coordinate
+              y: 0.11,     // anchor y-coordinate
+              sizex: 0.035,  // width in data units
+              sizey: 0.3,  // height in data units
+              sizing: "contain",  // "stretch", "contain", or "fill"
+              opacity: 1,
+              layer: "above"  // or "below"
             }
+          ]
         };
 
         Plotly.newPlot('regressionPlot', [regressionLine, ...points, ...residualSegments],
