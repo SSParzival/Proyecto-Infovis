@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="UTF-8">
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
@@ -9,12 +10,14 @@
       font-family: 'Roboto', sans-serif;
       background-color: white;
     }
+
     .center {
       margin: auto;
       width: 50%;
     }
   </style>
 </head>
+
 <body>
   <div class="center" id="regressionPlot" style="width:1224px;height:800px;"></div>
 
@@ -67,7 +70,7 @@
         }
 
         // Scatter points
-        const points = x.map((d,i) => {
+        const points = x.map((d, i) => {
           return {
             x: [x[i]],
             y: [y[i]],
@@ -75,7 +78,7 @@
             type: 'scatter',
             name: 'Observed',
             marker: {
-              size: 5 + Math.abs(r[i])*100/2,
+              size: 5 + Math.abs(r[i]) * 100 / 2,
               color: colorScale(r[i], minVal, maxVal, zeroPos)
             },
             showlegend: false // avoid repeating "Observed" in legend
@@ -83,7 +86,7 @@
         });
 
         // Generate one trace per residual
-        const residualSegments = x.map((d,i) => ({
+        const residualSegments = x.map((d, i) => ({
           x: [x[i], x[i]],
           y: [y[i], x[i]], // start at actual y, end at fitted value
           mode: 'lines',
@@ -100,26 +103,26 @@
         const color_kids = colorScale(r[5], minVal, maxVal, zeroPos);
         const color_harem = colorScale(r[6], minVal, maxVal, zeroPos);
 
-        const action_label = `<b>Action</b> (<span style="color:${color_action};">+${r[0].toFixed(2)*100}%</span>)`;
-        const kids_label = `<b>Kids</b> (<span style="color:${color_kids};">${r[5].toFixed(2)*100}%</span>)`;
-        const harem_label = `<b>Harem</b> (<span style="color:${color_harem};">${r[6].toFixed(2)*100}%</span>)`;
+        const action_label = `<b>Action</b> (<span style="color:${color_action};">+${r[0].toFixed(2) * 100}%</span>)`;
+        const kids_label = `<b>Kids</b> (<span style="color:${color_kids};">${r[5].toFixed(2) * 100}%</span>)`;
+        const harem_label = `<b>Harem</b> (<span style="color:${color_harem};">${r[6].toFixed(2) * 100}%</span>)`;
 
         const layout = {
           xaxis: {
             showgrid: false,
             tickformat: ',.0%',
-            range: [0, maxval+0.01],
+            range: [0, maxval + 0.01],
             tickvals: [0.05, 0.10, 0.15, 0.20, 0.25, 0.3]
           },
           yaxis: {
             showgrid: false,
             tickformat: ',.0%',
-            range: [0, maxval+0.01],
+            range: [0, maxval + 0.01],
             tickvals: [0.05, 0.10, 0.15, 0.20, 0.25, 0.3]
           },
           annotations: [
             { // TITULO
-              text: "Oferta y demanda en géneros de anime: ¿qué tan alineados están?",
+              text: "Oferta versus demanda en géneros de anime: ¿qué tan alineados están?",
               font: { size: 32, color: "black", family: "Roboto" },
               xref: 'paper',
               yref: 'paper',
@@ -139,7 +142,7 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
               showarrow: false,
               xanchor: "center",
               yanchor: "bottom",
-              font: {size: 20, color: 'black'}
+              font: { size: 20, color: 'black' }
             },
             { // ESQUINA SUPERIOR IZQUIERDA
               text: "Mayor demanda<br>que oferta",
@@ -182,7 +185,7 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
               yanchor: "top",
               font: { family: "Roboto", size: 14, color: "rgb(10,10,10)" },
               showarrow: false,
-            },{ // DIAGONAL
+            }, { // DIAGONAL
               x: 0.235,
               y: 0.247,
               text: "<b>Oferta = Demanda</b>",
@@ -209,7 +212,7 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
               xanchor: "right",
               yanchor: "center",
               arrowcolor: 'black'
-            },{ // FLECHITA KIDS  
+            }, { // FLECHITA KIDS  
               x: 0.145,               // the point you want to point to
               y: 0.0188,
               xref: 'x',          // use 'x'/'y' for data coordinates
@@ -228,7 +231,7 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
               xanchor: "right",
               yanchor: "center",
               arrowcolor: 'black'
-            },{ // FLECHITA HAREM
+            }, { // FLECHITA HAREM
               x: 0.203,               // the point you want to point to
               y: 0.008,
               xref: 'x',          // use 'x'/'y' for data coordinates
@@ -248,15 +251,15 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
               yanchor: "center",
               arrowcolor: 'black'
             },
-            
+
           ],
           showlegend: false,
           margin: {
-              l: 140,   // left
-              r: 140,   // right
-              t: 190,  // top (increase this!)
-              b: 60    // bottom
-            },
+            l: 140,   // left
+            r: 140,   // right
+            t: 190,  // top (increase this!)
+            b: 60    // bottom
+          },
           images: [
             {
               source: "Entrega 1/goku.png", // PNG URL or base64
@@ -298,9 +301,10 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
         };
 
         Plotly.newPlot('regressionPlot', [regressionLine, ...points, ...residualSegments],
-        layout, {staticPlot: true});
+          layout, { staticPlot: true });
       })
       .catch(err => console.error("Error loading JSON:", err));
   </script>
 </body>
+
 </html>
