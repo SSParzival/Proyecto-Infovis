@@ -6,6 +6,23 @@
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
   <style>
+    #regressionPlot,
+    #regressionPlot .js-plotly-plot,
+    #regressionPlot svg,
+    #regressionPlot .main-svg,
+    #regressionPlot .plotly {
+      cursor: default !important;
+      /* avoid Plotly's drag/selection cursor */
+    }
+
+    /* When hovering any trace group, show a pointer for affordance */
+    #regressionPlot .scatterlayer .trace:hover,
+    #regressionPlot .scatterlayer .trace .point,
+    #regressionPlot .scatterlayer .trace path:hover,
+    #regressionPlot .scatterlayer .trace circle:hover {
+      cursor: pointer !important;
+    }
+
     body {
       font-family: 'Roboto', sans-serif;
       background-color: white;
