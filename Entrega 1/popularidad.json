@@ -3,42 +3,56 @@
     "genero":"Action",
     "popularidad":0.3315340063,
     "proporcion":0.163041597,
-    "residuos":0.1684924093
+    "residuos":0.1684924093,
+    "anime_1":"Shingeki no Kyojin",
+    "anime_2":"Fullmetal Alchemist: Brotherhood"
   },
   {
     "genero":"Demons",
     "popularidad":0.2169563362,
     "proporcion":0.1737437258,
-    "residuos":0.0432126103
+    "residuos":0.0432126103,
+    "anime_1":"Kimetsu no Yaiba",
+    "anime_2":"Jujutsu Kaisen"
   },
   {
     "genero":"Comedy",
     "popularidad":0.1710812999,
     "proporcion":0.0893382565,
-    "residuos":0.0817430434
+    "residuos":0.0817430434,
+    "anime_1":"One Punch Man",
+    "anime_2":"No Game No Life"
   },
   {
     "genero":"Adventure",
     "popularidad":0.1530708603,
     "proporcion":0.1274159118,
-    "residuos":0.0256549485
+    "residuos":0.0256549485,
+    "anime_1":"Sword Art Online",
+    "anime_2":"Hunter x Hunter (2011)"
   },
   {
     "genero":"Music",
     "popularidad":0.1015785639,
     "proporcion":0.0996076848,
-    "residuos":0.0019708792
+    "residuos":0.0019708792,
+    "anime_1":"Shigatsu wa Kimi no Uso",
+    "anime_2":"K-On!"
   },
   {
     "genero":"Kids",
     "popularidad":0.0188906768,
     "proporcion":0.1474066809,
-    "residuos":-0.1285160041
+    "residuos":-0.1285160041,
+    "anime_1":"Pokémon",
+    "anime_2":"Digimon Adventure"
   },
   {
     "genero":"Harem",
     "popularidad":0.0068882566,
     "proporcion":0.1994461432,
-    "residuos":-0.1925578866
+    "residuos":-0.1925578866,
+    "anime_1":"High School DxD",
+    "anime_2":"Nisekoi"
   }
 ]

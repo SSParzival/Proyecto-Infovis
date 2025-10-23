@@ -15,12 +15,36 @@
       margin: auto;
       width: 50%;
     }
+    /* tooltip for lollipop hover */
+    #custom-tooltip {
+      position: absolute;
+      display: none;
+      pointer-events: none;
+      background: rgba(255,255,255,0.98);
+      border: 1px solid rgba(0,0,0,0.12);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #111;
+      z-index: 9999;
+      max-width: 364px;
+    }
+    .ct-row { display:flex; align-items:center; gap:8px; margin-top:6px }
+    .ct-label { width:64px; font-weight:600; font-size:12px }
+    .ct-bar { flex:1; height:12px; background:#eee; overflow:hidden }
+    .ct-bar-fill { height:100%; }
+    .ct-value { width:50px; text-align:right; font-size:12px }
+    .ct-img { width:64px; height:96px; object-fit:cover; margin-right:8px }
+    .res-left {flex:1; height: 12px; right:0; background-color: #ff0000;}
+    .res-right {flex:1; height: 12px; left:0; background-color: #0000ff;}
+    .res-full {flex:1; height:12px}
   </style>
 </head>
 
 <body>
   <div class="center" id="regressionPlot" style="width:1224px;height:800px;"></div>
-
+  <div id="custom-tooltip" aria-hidden="true"></div>
   <script>
     // Load JSON file
     fetch("Entrega 1/popularidad.json")
@@ -33,6 +57,8 @@
         const x = data.map(d => d.proporcion);
         const y = data.map(d => d.popularidad);
         const r = data.map(d => d.residuos);
+        const a1 = data.map(d => d.anime_1);
+        const a2 = data.map(d => d.anime_2);
 
         const minVal = Math.min(...r);
         const maxVal = Math.max(...r);
@@ -69,7 +95,6 @@
           }
         }
 
-        // Scatter points
         const points = x.map((d, i) => {
           return {
             x: [x[i]],
@@ -81,23 +106,47 @@
               size: 5 + Math.abs(r[i]) * 100 / 2,
               color: colorScale(r[i], minVal, maxVal, zeroPos)
             },
-            showlegend: false // avoid repeating "Observed" in legend
+            showlegend: false,
+            hoverinfo: 'skip'
           };
         });
 
-        // Generate one trace per residual
-        const residualSegments = x.map((d, i) => ({
-          x: [x[i], x[i]],
-          y: [y[i], x[i]], // start at actual y, end at fitted value
-          mode: 'lines',
-          type: 'scatter',
-          line: {
-            width: 2,
-            color: colorScale(r[i], minVal, maxVal, zeroPos)
-          },
-          showlegend: false,
-          hoverinfo: 'skip'
-        }));
+        const bars = x.map((d, i) => {
+          return {
+            data: [x[i], y[i]],
+            type: 'bar',
+            backgroundColor: ['rgb(200,200,200)', 'rgb(150,150,150)'],
+            showlegend: false,
+            hoverinfo: 'skip',
+            options: {
+              indexAxis: 'y'
+            }
+          };
+        });
+
+  const scaleMax = Math.max(...x.concat(y));
+  const residScale = Math.max(Math.abs(minVal), Math.abs(maxVal));
+
+        const residualSegments = x.map((d, i) => {
+          const genre = labels[i] || `Género ${i}`;
+          const resid = r[i];
+          const pct = (resid * 100).toFixed(2);
+          const color = colorScale(resid, minVal, maxVal, zeroPos);
+          // build candidate image paths (note: correct folder name has a space: 'Entrega 2')
+          const image1 = `Entrega 2/anime_images/${genre}1.jpg`;
+          const image2 = `Entrega 2/anime_images/${genre}2.jpg`;
+          return {
+            x: [x[i], x[i]],
+            y: [y[i], x[i]], // start at actual y, end at fitted value
+            mode: 'lines',
+            type: 'scatter',
+            line: { width: 2, color: color },
+            showlegend: false,
+            // suppress native tooltip but keep hover events
+            // hovertemplate: '<extra></extra>',
+            customdata: { index: i, genre, oferta: x[i], demanda: y[i], resid: pct, residRaw: r[i], residScale, scaleMax, image1, image2 }
+          };
+        });
 
         const color_action = colorScale(r[0], minVal, maxVal, zeroPos);
         const color_kids = colorScale(r[5], minVal, maxVal, zeroPos);
@@ -300,8 +349,94 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
           ]
         };
 
-        Plotly.newPlot('regressionPlot', [regressionLine, ...points, ...residualSegments],
-          layout, { staticPlot: true });
+        Plotly.newPlot('regressionPlot', [regressionLine, ...points, ...residualSegments], layout).then(gd => {
+          const tooltip = document.getElementById('custom-tooltip');
+          function pct(v){ return (Number.isFinite(v) ? (v*100).toFixed(2) + '%' : 'N/A'); }
+          function renderBars(oferta, demanda, scaleMax){
+            const o = Number(oferta);
+            const d = Number(demanda);
+            const scale = (Number.isFinite(scaleMax) && scaleMax > 0) ? scaleMax : Math.max(Math.abs(o), Math.abs(d), 0.0001);
+            const oW = Number.isFinite(o) ? Math.max(6, (o/scale)*100) : 6;
+            const dW = Number.isFinite(d) ? Math.max(6, (d/scale)*100) : 6;
+            return `
+              <div class="ct-row"><div class="ct-label">Oferta</div>
+                <div class="ct-bar"><div class="ct-bar-fill" style="width:${oW/2}%;background:#ff0000"></div></div>
+                <div class="ct-value">${pct(o)}</div>
+              </div>
+              <div class="ct-row"><div class="ct-label">Demanda</div>
+                <div class="ct-bar"><div class="ct-bar-fill" style="width:${dW/2}%;background:#0000ff"></div></div>
+                <div class="ct-value">${pct(d)}</div>
+              </div>
+            `;
+          }
+
+          gd.on('plotly_hover', ev => {
+            console.log(">--");
+            console.log(ev.points);
+            console.log(">--")
+            if(!ev.points || ev.points.length===0) return;
+            const pt = ev.points.find(p => p.fullData && p.data.customdata);
+            if(!pt) return;
+            const cd = pt.data.customdata;
+            // debug helper: log the customdata and point
+            console.log('plotly_hover customdata:', cd, 'point:', pt);
+
+            // fallback: if customdata is missing oferta/demanda, use pt.x/pt.y
+            const ofertaVal = (typeof cd.oferta === 'number') ? cd.oferta : (typeof pt.x === 'number' ? pt.x : (cd.oferta || 0));
+            const demandaVal = (typeof cd.demanda === 'number') ? cd.demanda : (typeof pt.y === 'number' ? pt.y : (cd.demanda || 0));
+            const scale = (cd && cd.scaleMax) ? cd.scaleMax : Math.max(ofertaVal, demandaVal, 0.0001);
+            const residualSide = (cd.resid >= 0) ? "l" : "r";
+            const residualValue = Math.abs(cd.resid);
+
+            const imgHtml = cd.image1 ? `<img src="${cd.image1}" class="ct-img" onerror="this.style.display='none';console.warn('img load failed', this.src)"/>` : '';
+            const imgHtml2 = cd.image2 ? `<img src="${cd.image2}" class="ct-img" onerror="this.style.display='none';console.warn('img load failed', this.src)"/>` : '';
+            const anime1 = a1[cd.index];
+            const anime2 = a2[cd.index];
+            // compute numeric residual values
+            const residValNum = Number.isFinite(Number(cd.residRaw)) ? Number(cd.residRaw) : 0;
+            const residMaxNum = (cd && cd.residScale) ? Math.abs(cd.residScale) : Math.max(Math.abs(residValNum), 0.0001);
+            const residRatio = Math.min(1, Math.abs(residValNum) / residMaxNum);
+            // percent width relative to half the bar (center to edge -> 50%)
+            const residPercent = Math.max(0, Math.min(50, residRatio * 50));
+            const residPctText = Number.isFinite(residValNum) ? (residValNum * 100).toFixed(2) + '%' : 'N/A';
+
+            const residBarHtml = `
+              <div style="margin-top:8px">
+                <div style="font-weight:600;margin-bottom:6px;text-align:center">Residuo</div>
+                <div style="position:relative;height:14px;background:#eee;overflow:hidden">
+                  <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#bbb;transform:translateX(-0.5px)"></div>
+                  ${residValNum >= 0 ? `<div style="position:absolute;left:50%;top:0;height:100%;width:${residPercent}%;background:#0000ff"></div>` : `<div style="position:absolute;left:${50 - residPercent}%;top:0;height:100%;width:${residPercent}%;background:#de2d26"></div>`}
+                </div>
+                <div style="text-align:center;font-size:12px;color:#444;margin-top:6px">${residPctText}</div>
+              </div>
+            `;
+
+            tooltip.innerHTML = `
+            <div style="display:flex;align-items:flex-start;gap:12px">
+              <div style="flex:1;min-width:180px">
+                <div style="font-weight:700">${cd.genre}</div>` + renderBars(ofertaVal, demandaVal, scale) + `
+                ${residBarHtml}
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:6px;min-width:88px">
+                ${imgHtml}
+                <div style="font-size:12px;text-align:center;max-width:88px;word-break:break-word">${anime1 || ''}</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:6px;min-width:88px">
+                ${imgHtml2}
+                <div style="font-size:12px;text-align:center;max-width:88px;word-break:break-word">${anime2 || ''}</div>
+              </div>
+            </div>
+            `;
+            tooltip.style.display = 'block';
+            tooltip.style.left = (ev.event.clientX + 12) + 'px';
+            tooltip.style.top = (ev.event.clientY + 12) + 'px';
+          });
+
+          gd.on('plotly_unhover', ev => {
+            tooltip.style.display = 'none';
+            tooltip.innerHTML = '';
+          });
+        });
       })
       .catch(err => console.error("Error loading JSON:", err));
   </script>
