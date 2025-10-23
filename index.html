@@ -177,25 +177,44 @@
         const scaleMax = Math.max(...x.concat(y));
         const residScale = Math.max(Math.abs(minVal), Math.abs(maxVal));
 
-        const residualSegments = x.map((d, i) => {
+        const residualSegments = [];
+        const residualHitSegments = [];
+
+        x.forEach((d, i) => {
           const genre = labels[i] || `Género ${i}`;
           const resid = r[i];
           const pct = (resid * 100).toFixed(2);
           const color = colorScale(resid, minVal, maxVal, zeroPos);
-          // build candidate image paths (note: correct folder name has a space: 'Entrega 2')
           const image1 = `Entrega 2/anime_images/${genre}1.jpg`;
           const image2 = `Entrega 2/anime_images/${genre}2.jpg`;
-          return {
+
+          // visible thin colored line (your original)
+          residualSegments.push({
             x: [x[i], x[i]],
             y: [y[i], x[i]], // start at actual y, end at fitted value
             mode: 'lines',
             type: 'scatter',
             line: { width: 2, color: color },
             showlegend: false,
-            // suppress native tooltip but keep hover events
-            hovertemplate: '<extra></extra>',
+            hovertemplate: '<extra></extra>', // suppress native tooltip (we handle custom)
             customdata: { index: i, genre, oferta: x[i], demanda: y[i], resid: pct, residRaw: r[i], residScale, scaleMax, image1, image2 }
-          };
+          });
+
+          // invisible but wide hit-target line:
+          // - very low opacity color but not fully transparent (some browsers ignore alpha=0 for hit-testing),
+          // - large width to make it easy to click anywhere near the visible line.
+          // This trace carries the SAME customdata so your hover/click handler finds it.
+          residualHitSegments.push({
+            x: [x[i], x[i]],
+            y: [y[i], x[i]],
+            mode: 'lines',
+            type: 'scatter',
+            line: { width: 16, color: 'rgba(0,0,0,0.01)' }, // almost-transparent but pickable
+            showlegend: false,
+            hovertemplate: '<extra></extra>',
+            // keep pointer events active for this trace
+            customdata: { index: i, genre, oferta: x[i], demanda: y[i], resid: pct, residRaw: r[i], residScale, scaleMax, image1, image2 }
+          });
         });
 
         const color_action = colorScale(r[0], minVal, maxVal, zeroPos);
@@ -425,7 +444,7 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
           ]
         };
 
-        Plotly.newPlot('regressionPlot', [regressionLine, ...points, ...residualSegments], layout, config).then(gd => {
+        Plotly.newPlot('regressionPlot', [regressionLine, ...points, ...residualSegments, ...residualHitSegments], layout, config).then(gd => {
 
           const tooltip = document.getElementById('custom-tooltip');
           let currentHighlight = { pointIdx: null, residIdx: null };
