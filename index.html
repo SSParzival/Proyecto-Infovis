@@ -569,14 +569,14 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
 
               // compute arrow color from the actual residual segment trace
               const residualTraceIndex = 1 + nPoints + cd.index; // trace index for the residual line
-              const arrowColor = gd.data[residualTraceIndex]?.line?.color || 'black'; // use the trace color
+              const arrowColor = cd.color || 'black'; // guaranteed to match residual line
 
               // draw new arrow
               Plotly.addTraces(gd, {
                 x: [cd.oferta, cd.oferta],
                 y: [cd.demanda, cd.oferta],
                 mode: 'lines',
-                line: { width: 2, color: arrowColor },
+                line: { width: 2, color: cd.color || 'black' },
                 hoverinfo: 'skip',
                 showlegend: false,
                 hoveron: false // important to prevent cursor issues
