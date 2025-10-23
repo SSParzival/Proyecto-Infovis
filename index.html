@@ -207,6 +207,8 @@
         const harem_label = `<b>Harem</b> (<span style="color:${color_harem};">${r[6].toFixed(2) * 100}%</span>)`;
 
         const layout = {
+          dragmode: false,            // <-- disable drag-to-zoom / drag-to-select
+          hovermode: 'closest',
           xaxis: {
             showgrid: false,
             tickformat: ',.0%',
