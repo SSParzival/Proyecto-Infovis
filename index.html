@@ -216,15 +216,19 @@
           });
 
           (function () {
-            const nSteps = 9; // number of marker points along the segment (odd numbers are fine). Increase for more pickable area.
-            const xs = new Array(nSteps).fill(x[i]); // same x
+            // compute line length
+            const lineLength = Math.abs(y[i] - x[i]);
+            // determine number of hit markers based on length
+            const minSteps = 9;
+            const maxSteps = 50;
+            const nSteps = Math.min(maxSteps, Math.max(minSteps, Math.ceil(lineLength * 100))); // tweak 100 as needed
+
+            const xs = new Array(nSteps).fill(x[i]);
             const ys = [];
             const customArr = [];
             for (let k = 0; k < nSteps; k++) {
               const t = (nSteps === 1) ? 0 : k / (nSteps - 1);
-              // interpolate y between y[i] (start) and x[i] (end)
               ys.push(y[i] + t * (x[i] - y[i]));
-              // push identical customdata object for each marker position
               customArr.push({
                 index: i,
                 genre,
@@ -236,25 +240,25 @@
                 scaleMax,
                 image1,
                 image2,
-                color: color // 👈 add this!
+                color: color
               });
             }
 
             residualHitSegments.push({
               x: xs,
               y: ys,
-              mode: 'markers',               // markers only for reliable hit-testing
+              mode: 'markers',
               type: 'scatter',
               marker: {
-                size: 18,                    // large pick radius
-                color: 'rgba(0,0,0,0.01)',   // visually negligible
-                opacity: 0.01,               // nearly invisible
+                size: 18,
+                color: 'rgba(0,0,0,0.01)',
+                opacity: 0.01
               },
               showlegend: false,
-              hovertemplate: '<extra></extra>', // we handle the tooltip ourselves
-              customdata: customArr            // per-point customdata array
+              hovertemplate: '<extra></extra>',
+              customdata: customArr
             });
-          })(i);
+          })();
         });
 
         const color_action = colorScale(r[0], minVal, maxVal, zeroPos);
