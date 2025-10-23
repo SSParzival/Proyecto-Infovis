@@ -427,35 +427,6 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
 
         Plotly.newPlot('regressionPlot', [regressionLine, ...points, ...residualSegments], layout, config).then(gd => {
 
-          try {
-            // block wheel-to-zoom on the graph div (preventDefault needs passive:false)
-            gd.addEventListener('wheel', function (ev) {
-              ev.preventDefault();
-            }, { passive: false });
-
-            // block double-click autoscale/zoom (use capture to run before Plotly)
-            gd.addEventListener('dblclick', function (ev) {
-              ev.preventDefault();
-              ev.stopImmediatePropagation();
-            }, true);
-
-            // block left-button drag starts that lead to box-zoom/selection; allow right-click
-            gd.addEventListener('mousedown', function (ev) {
-              if (ev.button === 0) { // left button
-                ev.preventDefault();
-              }
-            }, { capture: true });
-
-            // block multi-finger touch gestures (pinch-to-zoom)
-            gd.addEventListener('touchstart', function (ev) {
-              if (ev.touches && ev.touches.length > 1) {
-                ev.preventDefault();
-              }
-            }, { passive: false, capture: true });
-          } catch (e) {
-            console.warn('Could not attach DOM gesture-blocking listeners', e);
-          }
-
           const tooltip = document.getElementById('custom-tooltip');
           let currentHighlight = { pointIdx: null, residIdx: null };
           function restoreHighlight() {
