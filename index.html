@@ -15,14 +15,15 @@
       margin: auto;
       width: 50%;
     }
+
     /* tooltip for lollipop hover */
     #custom-tooltip {
       position: absolute;
       display: none;
       pointer-events: none;
-      background: rgba(255,255,255,0.98);
-      border: 1px solid rgba(0,0,0,0.12);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+      background: rgba(255, 255, 255, 0.98);
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
       padding: 8px 10px;
       border-radius: 6px;
       font-size: 13px;
@@ -31,15 +32,62 @@
       max-width: 378px;
       margin: 2px;
     }
-    .ct-row { display:flex; align-items:center; gap:8px; margin-top:6px }
-    .ct-label { width:64px; font-weight:600; font-size:12px }
-    .ct-bar { flex:1; height:12px; background:#eee; overflow:hidden }
-    .ct-bar-fill { height:100%; }
-    .ct-value { width:50px; text-align:right; font-size:12px }
-    .ct-img { width:64px; height:96px; object-fit:cover; margin-right:8px }
-    .res-left {flex:1; height: 12px; right:0; background-color: #ff0000;}
-    .res-right {flex:1; height: 12px; left:0; background-color: #0000ff;}
-    .res-full {flex:1; height:12px}
+
+    .ct-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px
+    }
+
+    .ct-label {
+      width: 64px;
+      font-weight: 600;
+      font-size: 12px
+    }
+
+    .ct-bar {
+      flex: 1;
+      height: 12px;
+      background: #eee;
+      overflow: hidden
+    }
+
+    .ct-bar-fill {
+      height: 100%;
+    }
+
+    .ct-value {
+      width: 50px;
+      text-align: right;
+      font-size: 12px
+    }
+
+    .ct-img {
+      width: 64px;
+      height: 96px;
+      object-fit: cover;
+      margin-right: 8px
+    }
+
+    .res-left {
+      flex: 1;
+      height: 12px;
+      right: 0;
+      background-color: #ff0000;
+    }
+
+    .res-right {
+      flex: 1;
+      height: 12px;
+      left: 0;
+      background-color: #0000ff;
+    }
+
+    .res-full {
+      flex: 1;
+      height: 12px
+    }
   </style>
 </head>
 
@@ -126,8 +174,8 @@
           };
         });
 
-  const scaleMax = Math.max(...x.concat(y));
-  const residScale = Math.max(Math.abs(minVal), Math.abs(maxVal));
+        const scaleMax = Math.max(...x.concat(y));
+        const residScale = Math.max(Math.abs(minVal), Math.abs(maxVal));
 
         const residualSegments = x.map((d, i) => {
           const genre = labels[i] || `Género ${i}`;
@@ -354,52 +402,64 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
           ]
         };
 
-  // preserve original trace opacities (we'll use opacity-based highlighting)
-  const nPoints = points.length;
-  const originalPointSizes = points.map(p => (p.marker && p.marker.size) ? p.marker.size : 6);
-  const originalPointColors = points.map(p => (p.marker && p.marker.color) ? p.marker.color : '#888');
-  const originalResidualWidths = residualSegments.map(s => (s.line && typeof s.line.width === 'number') ? s.line.width : 2);
-  const originalResidualColors = residualSegments.map(s => (s.line && s.line.color) ? s.line.color : '#888');
-  const originalPointOpacities = points.map(p => (typeof p.opacity === 'number') ? p.opacity : 1);
-  const originalResidualOpacities = residualSegments.map(s => (typeof s.opacity === 'number') ? s.opacity : 1);
-  const pointTraceIndices = Array.from({length: nPoints}, (_, i) => 1 + i);
-  const residualTraceIndices = Array.from({length: nPoints}, (_, i) => 1 + nPoints + i);
+        // preserve original trace opacities (we'll use opacity-based highlighting)
+        const nPoints = points.length;
+        const originalPointSizes = points.map(p => (p.marker && p.marker.size) ? p.marker.size : 6);
+        const originalPointColors = points.map(p => (p.marker && p.marker.color) ? p.marker.color : '#888');
+        const originalResidualWidths = residualSegments.map(s => (s.line && typeof s.line.width === 'number') ? s.line.width : 2);
+        const originalResidualColors = residualSegments.map(s => (s.line && s.line.color) ? s.line.color : '#888');
+        const originalPointOpacities = points.map(p => (typeof p.opacity === 'number') ? p.opacity : 1);
+        const originalResidualOpacities = residualSegments.map(s => (typeof s.opacity === 'number') ? s.opacity : 1);
+        const pointTraceIndices = Array.from({ length: nPoints }, (_, i) => 1 + i);
+        const residualTraceIndices = Array.from({ length: nPoints }, (_, i) => 1 + nPoints + i);
 
-        Plotly.newPlot('regressionPlot', [regressionLine, ...points, ...residualSegments], layout).then(gd => {
+        Plotly.newPlot(
+          'regressionPlot',
+          [regressionLine, ...points, ...residualSegments],
+          layout,
+          {
+            displayModeBar: false,
+            staticPlot: true,
+            responsive: true,
+            displaylogo: false,
+            scrollZoom: false,
+            doubleClick: false
+          }
+        ).then(gd => {
           const tooltip = document.getElementById('custom-tooltip');
           let currentHighlight = { pointIdx: null, residIdx: null };
           function restoreHighlight() {
             // restore opacities for all point traces
             try {
-              for(let i=0;i<pointTraceIndices.length;i++){
+              for (let i = 0; i < pointTraceIndices.length; i++) {
                 const tid = pointTraceIndices[i];
                 const orig = (i < originalPointOpacities.length) ? originalPointOpacities[i] : 1;
-                Plotly.restyle(gd, {'opacity': orig}, [tid]);
+                Plotly.restyle(gd, { 'opacity': orig }, [tid]);
               }
-              for(let i=0;i<residualTraceIndices.length;i++){
+              for (let i = 0; i < residualTraceIndices.length; i++) {
                 const tid = residualTraceIndices[i];
                 const orig = (i < originalResidualOpacities.length) ? originalResidualOpacities[i] : 1;
-                Plotly.restyle(gd, {'opacity': orig}, [tid]);
+                Plotly.restyle(gd, { 'opacity': orig }, [tid]);
               }
-            } catch(e) {
+            } catch (e) {
               console.warn('restoreHighlight failed', e);
             }
             currentHighlight = { pointIdx: null, residIdx: null };
           }
-          function pct(v){ return (Number.isFinite(v) ? (v*100).toFixed(2) + '%' : 'N/A'); }
-          function renderBars(oferta, demanda, scaleMax){
+          function pct(v) { return (Number.isFinite(v) ? (v * 100).toFixed(2) + '%' : 'N/A'); }
+          function renderBars(oferta, demanda, scaleMax) {
             const o = Number(oferta);
             const d = Number(demanda);
             const scale = (Number.isFinite(scaleMax) && scaleMax > 0) ? scaleMax : Math.max(Math.abs(o), Math.abs(d), 0.0001);
-            const oW = Number.isFinite(o) ? Math.max(6, (o/scale)*100) : 6;
-            const dW = Number.isFinite(d) ? Math.max(6, (d/scale)*100) : 6;
+            const oW = Number.isFinite(o) ? Math.max(6, (o / scale) * 100) : 6;
+            const dW = Number.isFinite(d) ? Math.max(6, (d / scale) * 100) : 6;
             return `
               <div class="ct-row"><div class="ct-label">Oferta</div>
-                <div class="ct-bar"><div class="ct-bar-fill" style="width:${oW/2}%;background:#ff0000"></div></div>
+                <div class="ct-bar"><div class="ct-bar-fill" style="width:${oW / 2}%;background:#ff0000"></div></div>
                 <div class="ct-value">${pct(o)}</div>
               </div>
               <div class="ct-row"><div class="ct-label">Demanda</div>
-                <div class="ct-bar"><div class="ct-bar-fill" style="width:${dW/2}%;background:#0000ff"></div></div>
+                <div class="ct-bar"><div class="ct-bar-fill" style="width:${dW / 2}%;background:#0000ff"></div></div>
                 <div class="ct-value">${pct(d)}</div>
               </div>
             `;
@@ -409,9 +469,9 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
             console.log(">--");
             console.log(ev.points);
             console.log(">--")
-            if(!ev.points || ev.points.length===0) return;
+            if (!ev.points || ev.points.length === 0) return;
             const pt = ev.points.find(p => p.fullData && p.data.customdata);
-            if(!pt) return;
+            if (!pt) return;
             const cd = pt.data.customdata;
             // debug helper: log the customdata and point
             console.log('plotly_hover customdata:', cd, 'point:', pt);
@@ -426,16 +486,16 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
               // dim all point and residual traces
               const lowOpacity = 0.18;
               try {
-                Plotly.restyle(gd, {'opacity': lowOpacity}, pointTraceIndices);
-                Plotly.restyle(gd, {'opacity': lowOpacity}, residualTraceIndices);
-              } catch(e){
+                Plotly.restyle(gd, { 'opacity': lowOpacity }, pointTraceIndices);
+                Plotly.restyle(gd, { 'opacity': lowOpacity }, residualTraceIndices);
+              } catch (e) {
                 // fallback: iterate individually if batch restyle fails
-                pointTraceIndices.forEach(t => Plotly.restyle(gd, {'opacity': lowOpacity}, [t]));
-                residualTraceIndices.forEach(t => Plotly.restyle(gd, {'opacity': lowOpacity}, [t]));
+                pointTraceIndices.forEach(t => Plotly.restyle(gd, { 'opacity': lowOpacity }, [t]));
+                residualTraceIndices.forEach(t => Plotly.restyle(gd, { 'opacity': lowOpacity }, [t]));
               }
               // set hovered traces to full opacity
-              Plotly.restyle(gd, {'opacity': 1}, [pointTraceIndex]);
-              Plotly.restyle(gd, {'opacity': 1}, [residualTraceIndex]);
+              Plotly.restyle(gd, { 'opacity': 1 }, [pointTraceIndex]);
+              Plotly.restyle(gd, { 'opacity': 1 }, [residualTraceIndex]);
               currentHighlight = { pointIdx: pointTraceIndex, residIdx: residualTraceIndex };
             } catch (e) {
               console.warn('Highlight (opacity) failed', e);
@@ -497,7 +557,7 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
             tooltip.style.display = 'none';
             tooltip.innerHTML = '';
             // restore highlighted styles
-            try { restoreHighlight(); } catch(e){ console.warn('Restore highlight failed', e); }
+            try { restoreHighlight(); } catch (e) { console.warn('Restore highlight failed', e); }
           });
         });
       })
