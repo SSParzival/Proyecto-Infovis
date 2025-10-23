@@ -233,19 +233,23 @@
             line: { width: 2, color: color },
             showlegend: false,
             hovertemplate: '<extra></extra>', // suppress native tooltip (we handle custom)
-            customdata: { index: i, genre, oferta: x[i], demanda: y[i], resid: pct, residRaw: r[i], residScale, scaleMax, image1, image2, audioUrl}
+            customdata: { index: i, genre, oferta: x[i], demanda: y[i], resid: pct, residRaw: r[i], residScale, scaleMax, image1, image2, color: color, audioUrl  }
           });
 
           (function () {
-            const nSteps = 9; // number of marker points along the segment (odd numbers are fine). Increase for more pickable area.
-            const xs = new Array(nSteps).fill(x[i]); // same x
+            // compute line length
+            const lineLength = Math.abs(y[i] - x[i]);
+            // determine number of hit markers based on length
+            const minSteps = 9;
+            const maxSteps = 50;
+            const nSteps = Math.min(maxSteps, Math.max(minSteps, Math.ceil(lineLength * 100))); // tweak 100 as needed
+
+            const xs = new Array(nSteps).fill(x[i]);
             const ys = [];
             const customArr = [];
             for (let k = 0; k < nSteps; k++) {
               const t = (nSteps === 1) ? 0 : k / (nSteps - 1);
-              // interpolate y between y[i] (start) and x[i] (end)
               ys.push(y[i] + t * (x[i] - y[i]));
-              // push identical customdata object for each marker position
               customArr.push({
                 index: i,
                 genre,
@@ -257,7 +261,7 @@
                 scaleMax,
                 image1,
                 image2,
-                color: color, // 👈 add this!
+                color: color,
                 audioUrl: audioUrl
               });
             }
@@ -265,18 +269,18 @@
             residualHitSegments.push({
               x: xs,
               y: ys,
-              mode: 'markers',               // markers only for reliable hit-testing
+              mode: 'markers',
               type: 'scatter',
               marker: {
-                size: 18,                    // large pick radius
-                color: 'rgba(0,0,0,0.01)',   // visually negligible
-                opacity: 0.01,               // nearly invisible
+                size: 18,
+                color: 'rgba(0,0,0,0.01)',
+                opacity: 0.01
               },
               showlegend: false,
-              hovertemplate: '<extra></extra>', // we handle the tooltip ourselves
-              customdata: customArr            // per-point customdata array
+              hovertemplate: '<extra></extra>',
+              customdata: customArr
             });
-          })(i);
+          })();
         });
 
         const color_action = colorScale(r[0], minVal, maxVal, zeroPos);
@@ -637,17 +641,27 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
             try {
               // restore any previous highlight first
               restoreHighlight();
-              // Remove any previous hover arrow
-              Plotly.deleteTraces(gd, gd.data.length - 1); // optional if you added a temporary arrow trace before
+              // remove previous arrow safely
+              if (gd._hoverArrowTraceIdx !== undefined) {
+                Plotly.deleteTraces(gd, gd._hoverArrowTraceIdx);
+                gd._hoverArrowTraceIdx = undefined;
+              }
 
-              // Draw vertical line (hover arrow) using the same color as the point/line
+              // compute arrow color from the actual residual segment trace
+              const residualTraceIndex = 1 + nPoints + cd.index; // trace index for the residual line
+              const arrowColor = cd.color || 'black'; // guaranteed to match residual line
+
+              // draw new arrow
               Plotly.addTraces(gd, {
                 x: [cd.oferta, cd.oferta],
-                y: [cd.demanda, cd.oferta], // from actual y to fitted y
+                y: [cd.demanda, cd.oferta],
                 mode: 'lines',
-                line: { width: 2, color: cd.color || 'gray' },
+                line: { width: 2, color: cd.color || 'black' },
                 hoverinfo: 'skip',
-                showlegend: false
+                showlegend: false,
+                hoveron: false // important to prevent cursor issues
+              }).then(() => {
+                gd._hoverArrowTraceIdx = gd.data.length - 1;
               });
               // dim all point and residual traces
               const lowOpacity = 0.18;
