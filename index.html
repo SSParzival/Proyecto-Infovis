@@ -28,7 +28,8 @@
       font-size: 13px;
       color: #111;
       z-index: 9999;
-      max-width: 364px;
+      max-width: 378px;
+      margin: 2px;
     }
     .ct-row { display:flex; align-items:center; gap:8px; margin-top:6px }
     .ct-label { width:64px; font-weight:600; font-size:12px }
@@ -78,7 +79,8 @@
           mode: 'lines',
           type: 'scatter',
           name: 'Regression Line',
-          line: { color: 'black', width: 1, dash: 'dash' }
+          line: { color: 'black', width: 1, dash: 'dash' },
+          hovertemplate: '<extra></extra>'
         };
 
         // Residual lollipops (vertical segments)
@@ -107,7 +109,7 @@
               color: colorScale(r[i], minVal, maxVal, zeroPos)
             },
             showlegend: false,
-            hoverinfo: 'skip'
+            hovertemplate: '<extra></extra>'
           };
         });
 
@@ -117,7 +119,7 @@
             type: 'bar',
             backgroundColor: ['rgb(200,200,200)', 'rgb(150,150,150)'],
             showlegend: false,
-            hoverinfo: 'skip',
+            hovertemplate: '<extra></extra>',
             options: {
               indexAxis: 'y'
             }
@@ -143,7 +145,7 @@
             line: { width: 2, color: color },
             showlegend: false,
             // suppress native tooltip but keep hover events
-            // hovertemplate: '<extra></extra>',
+            hovertemplate: '<extra></extra>',
             customdata: { index: i, genre, oferta: x[i], demanda: y[i], resid: pct, residRaw: r[i], residScale, scaleMax, image1, image2 }
           };
         });
@@ -161,13 +163,15 @@
             showgrid: false,
             tickformat: ',.0%',
             range: [0, maxval + 0.01],
-            tickvals: [0.05, 0.10, 0.15, 0.20, 0.25, 0.3]
+            tickvals: [0.05, 0.10, 0.15, 0.20, 0.25, 0.3],
+            hovertemplate: '<extra></extra>'
           },
           yaxis: {
             showgrid: false,
             tickformat: ',.0%',
             range: [0, maxval + 0.01],
-            tickvals: [0.05, 0.10, 0.15, 0.20, 0.25, 0.3]
+            tickvals: [0.05, 0.10, 0.15, 0.20, 0.25, 0.3],
+            hovertemplate: '<extra></extra>'
           },
           annotations: [
             { // TITULO
@@ -180,6 +184,7 @@
               showarrow: false,
               xanchor: "center",
               yanchor: "bottom",
+              hovertemplate: '<extra></extra>'
             },
             { // SUB-TITULO
               text: 'Action destaca por una demanda muy superior a su oferta,<br>\
@@ -349,8 +354,38 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
           ]
         };
 
+  // preserve original trace opacities (we'll use opacity-based highlighting)
+  const nPoints = points.length;
+  const originalPointSizes = points.map(p => (p.marker && p.marker.size) ? p.marker.size : 6);
+  const originalPointColors = points.map(p => (p.marker && p.marker.color) ? p.marker.color : '#888');
+  const originalResidualWidths = residualSegments.map(s => (s.line && typeof s.line.width === 'number') ? s.line.width : 2);
+  const originalResidualColors = residualSegments.map(s => (s.line && s.line.color) ? s.line.color : '#888');
+  const originalPointOpacities = points.map(p => (typeof p.opacity === 'number') ? p.opacity : 1);
+  const originalResidualOpacities = residualSegments.map(s => (typeof s.opacity === 'number') ? s.opacity : 1);
+  const pointTraceIndices = Array.from({length: nPoints}, (_, i) => 1 + i);
+  const residualTraceIndices = Array.from({length: nPoints}, (_, i) => 1 + nPoints + i);
+
         Plotly.newPlot('regressionPlot', [regressionLine, ...points, ...residualSegments], layout).then(gd => {
           const tooltip = document.getElementById('custom-tooltip');
+          let currentHighlight = { pointIdx: null, residIdx: null };
+          function restoreHighlight() {
+            // restore opacities for all point traces
+            try {
+              for(let i=0;i<pointTraceIndices.length;i++){
+                const tid = pointTraceIndices[i];
+                const orig = (i < originalPointOpacities.length) ? originalPointOpacities[i] : 1;
+                Plotly.restyle(gd, {'opacity': orig}, [tid]);
+              }
+              for(let i=0;i<residualTraceIndices.length;i++){
+                const tid = residualTraceIndices[i];
+                const orig = (i < originalResidualOpacities.length) ? originalResidualOpacities[i] : 1;
+                Plotly.restyle(gd, {'opacity': orig}, [tid]);
+              }
+            } catch(e) {
+              console.warn('restoreHighlight failed', e);
+            }
+            currentHighlight = { pointIdx: null, residIdx: null };
+          }
           function pct(v){ return (Number.isFinite(v) ? (v*100).toFixed(2) + '%' : 'N/A'); }
           function renderBars(oferta, demanda, scaleMax){
             const o = Number(oferta);
@@ -380,6 +415,31 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
             const cd = pt.data.customdata;
             // debug helper: log the customdata and point
             console.log('plotly_hover customdata:', cd, 'point:', pt);
+
+            // highlight corresponding point and residual line
+            // compute trace indices: regressionLine is at 0, points start at 1, residuals start at 1 + nPoints
+            const pointTraceIndex = 1 + cd.index; // trace index for the marker trace
+            const residualTraceIndex = 1 + nPoints + cd.index; // trace index for the residual line
+            try {
+              // restore any previous highlight first
+              restoreHighlight();
+              // dim all point and residual traces
+              const lowOpacity = 0.18;
+              try {
+                Plotly.restyle(gd, {'opacity': lowOpacity}, pointTraceIndices);
+                Plotly.restyle(gd, {'opacity': lowOpacity}, residualTraceIndices);
+              } catch(e){
+                // fallback: iterate individually if batch restyle fails
+                pointTraceIndices.forEach(t => Plotly.restyle(gd, {'opacity': lowOpacity}, [t]));
+                residualTraceIndices.forEach(t => Plotly.restyle(gd, {'opacity': lowOpacity}, [t]));
+              }
+              // set hovered traces to full opacity
+              Plotly.restyle(gd, {'opacity': 1}, [pointTraceIndex]);
+              Plotly.restyle(gd, {'opacity': 1}, [residualTraceIndex]);
+              currentHighlight = { pointIdx: pointTraceIndex, residIdx: residualTraceIndex };
+            } catch (e) {
+              console.warn('Highlight (opacity) failed', e);
+            }
 
             // fallback: if customdata is missing oferta/demanda, use pt.x/pt.y
             const ofertaVal = (typeof cd.oferta === 'number') ? cd.oferta : (typeof pt.x === 'number' ? pt.x : (cd.oferta || 0));
@@ -412,14 +472,15 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
             `;
 
             tooltip.innerHTML = `
+            <div style="font-size:16px;font-weight:800;margin-bottom:8px;text-align:center">${cd.genre}</div>
             <div style="display:flex;align-items:flex-start;gap:12px">
               <div style="flex:1;min-width:180px">
-                <div style="font-weight:700">${cd.genre}</div>` + renderBars(ofertaVal, demandaVal, scale) + `
+                ` + renderBars(ofertaVal, demandaVal, scale) + `
                 ${residBarHtml}
               </div>
               <div style="display:flex;flex-direction:column;align-items:center;gap:6px;min-width:88px">
                 ${imgHtml}
-                <div style="font-size:12px;text-align:center;max-width:88px;word-break:break-word">${anime1 || ''}</div>
+                <div style="font-size:12px;text-align:center;max-width:84px;word-break:break-word">${anime1 || ''}</div>
               </div>
               <div style="display:flex;flex-direction:column;align-items:center;gap:6px;min-width:88px">
                 ${imgHtml2}
@@ -435,6 +496,8 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
           gd.on('plotly_unhover', ev => {
             tooltip.style.display = 'none';
             tooltip.innerHTML = '';
+            // restore highlighted styles
+            try { restoreHighlight(); } catch(e){ console.warn('Restore highlight failed', e); }
           });
         });
       })
