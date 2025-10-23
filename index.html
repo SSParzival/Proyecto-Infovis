@@ -563,8 +563,9 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
                 gd._hoverArrowTraceIdx = undefined;
               }
 
-              // compute arrow color safely
-              const arrowColor = cd.color || (pt.fullData && pt.fullData.marker && pt.fullData.marker.color) || 'gray';
+              // compute arrow color from the actual residual segment trace
+              const residualTraceIndex = 1 + nPoints + cd.index; // trace index for the residual line
+              const arrowColor = gd.data[residualTraceIndex]?.line?.color || 'black'; // use the trace color
 
               // draw new arrow
               Plotly.addTraces(gd, {
@@ -573,7 +574,8 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
                 mode: 'lines',
                 line: { width: 2, color: arrowColor },
                 hoverinfo: 'skip',
-                showlegend: false
+                showlegend: false,
+                hoveron: false // important to prevent cursor issues
               }).then(() => {
                 gd._hoverArrowTraceIdx = gd.data.length - 1;
               });
