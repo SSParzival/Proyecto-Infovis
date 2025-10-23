@@ -557,17 +557,25 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
             try {
               // restore any previous highlight first
               restoreHighlight();
-              // Remove any previous hover arrow
-              Plotly.deleteTraces(gd, gd.data.length - 1); // optional if you added a temporary arrow trace before
+              // remove previous arrow safely
+              if (gd._hoverArrowTraceIdx !== undefined) {
+                Plotly.deleteTraces(gd, gd._hoverArrowTraceIdx);
+                gd._hoverArrowTraceIdx = undefined;
+              }
 
-              // Draw vertical line (hover arrow) using the same color as the point/line
+              // compute arrow color safely
+              const arrowColor = cd.color || (pt.fullData && pt.fullData.marker && pt.fullData.marker.color) || 'gray';
+
+              // draw new arrow
               Plotly.addTraces(gd, {
                 x: [cd.oferta, cd.oferta],
-                y: [cd.demanda, cd.oferta], // from actual y to fitted y
+                y: [cd.demanda, cd.oferta],
                 mode: 'lines',
-                line: { width: 2, color: cd.color || 'gray' },
+                line: { width: 2, color: arrowColor },
                 hoverinfo: 'skip',
                 showlegend: false
+              }).then(() => {
+                gd._hoverArrowTraceIdx = gd.data.length - 1;
               });
               // dim all point and residual traces
               const lowOpacity = 0.18;
