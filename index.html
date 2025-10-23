@@ -227,7 +227,19 @@
               // interpolate y between y[i] (start) and x[i] (end)
               ys.push(y[i] + t * (x[i] - y[i]));
               // push identical customdata object for each marker position
-              customArr.push({ index: i, genre, oferta: x[i], demanda: y[i], resid: pct, residRaw: r[i], residScale, scaleMax, image1, image2 });
+              customArr.push({
+                index: i,
+                genre,
+                oferta: x[i],
+                demanda: y[i],
+                resid: pct,
+                residRaw: r[i],
+                residScale,
+                scaleMax,
+                image1,
+                image2,
+                color: color // 👈 add this!
+              });
             }
 
             residualHitSegments.push({
@@ -547,6 +559,18 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
             try {
               // restore any previous highlight first
               restoreHighlight();
+              // Remove any previous hover arrow
+              Plotly.deleteTraces(gd, gd.data.length - 1); // optional if you added a temporary arrow trace before
+
+              // Draw vertical line (hover arrow) using the same color as the point/line
+              Plotly.addTraces(gd, {
+                x: [cd.oferta, cd.oferta],
+                y: [cd.demanda, cd.oferta], // from actual y to fitted y
+                mode: 'lines',
+                line: { width: 2, color: cd.color || 'gray' },
+                hoverinfo: 'skip',
+                showlegend: false
+              });
               // dim all point and residual traces
               const lowOpacity = 0.18;
               try {
