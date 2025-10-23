@@ -10,17 +10,15 @@
     #regressionPlot .js-plotly-plot,
     #regressionPlot svg,
     #regressionPlot .main-svg,
-    #regressionPlot .plotly {
-      cursor: default !important;
-      /* avoid Plotly's drag/selection cursor */
+    #regressionPlot {
+      cursor: default;
+      /* normal arrow for non-interactive areas */
     }
 
-    /* When hovering any trace group, show a pointer for affordance */
+    /* optional: pointer on hoverable traces (fine-tune if needed) */
     #regressionPlot .scatterlayer .trace:hover,
-    #regressionPlot .scatterlayer .trace .point,
-    #regressionPlot .scatterlayer .trace path:hover,
     #regressionPlot .scatterlayer .trace circle:hover {
-      cursor: pointer !important;
+      cursor: pointer;
     }
 
     body {
