@@ -217,21 +217,34 @@
             customdata: { index: i, genre, oferta: x[i], demanda: y[i], resid: pct, residRaw: r[i], residScale, scaleMax, image1, image2 }
           });
 
-          // invisible but wide hit-target line:
-          // - very low opacity color but not fully transparent (some browsers ignore alpha=0 for hit-testing),
-          // - large width to make it easy to click anywhere near the visible line.
-          // This trace carries the SAME customdata so your hover/click handler finds it.
-          residualHitSegments.push({
-            x: [x[i], x[i]],
-            y: [y[i], x[i]],
-            mode: 'lines',
-            type: 'scatter',
-            line: { width: 16, color: 'rgba(0,0,0,0.01)' }, // almost-transparent but pickable
-            showlegend: false,
-            hovertemplate: '<extra></extra>',
-            // keep pointer events active for this trace
-            customdata: { index: i, genre, oferta: x[i], demanda: y[i], resid: pct, residRaw: r[i], residScale, scaleMax, image1, image2 }
-          });
+          (function () {
+            const nSteps = 9; // number of marker points along the segment (odd numbers are fine). Increase for more pickable area.
+            const xs = new Array(nSteps).fill(x[i]); // same x
+            const ys = [];
+            const customArr = [];
+            for (let k = 0; k < nSteps; k++) {
+              const t = (nSteps === 1) ? 0 : k / (nSteps - 1);
+              // interpolate y between y[i] (start) and x[i] (end)
+              ys.push(y[i] + t * (x[i] - y[i]));
+              // push identical customdata object for each marker position
+              customArr.push({ index: i, genre, oferta: x[i], demanda: y[i], resid: pct, residRaw: r[i], residScale, scaleMax, image1, image2 });
+            }
+
+            residualHitSegments.push({
+              x: xs,
+              y: ys,
+              mode: 'markers',               // markers only for reliable hit-testing
+              type: 'scatter',
+              marker: {
+                size: 18,                    // large pick radius
+                color: 'rgba(0,0,0,0.01)',   // visually negligible
+                opacity: 0.01,               // nearly invisible
+              },
+              showlegend: false,
+              hovertemplate: '<extra></extra>', // we handle the tooltip ourselves
+              customdata: customArr            // per-point customdata array
+            });
+          })(i);
         });
 
         const color_action = colorScale(r[0], minVal, maxVal, zeroPos);
@@ -509,9 +522,21 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
             console.log(ev.points);
             console.log(">--")
             if (!ev.points || ev.points.length === 0) return;
-            const pt = ev.points.find(p => p.fullData && p.data.customdata);
+            const pt = ev.points.find(p => p.fullData && p.data && p.data.customdata !== undefined);
             if (!pt) return;
-            const cd = pt.data.customdata;
+
+            // support two formats:
+            // 1) single-object customdata (old visible traces)
+            // 2) customdata as array (markers-based hit traces) -> pick pt.data.customdata[pt.pointIndex]
+            let cd;
+            if (Array.isArray(pt.data.customdata)) {
+              // safeguard: if pointIndex is undefined, fallback to first element
+              const idx = (typeof pt.pointIndex === 'number') ? pt.pointIndex : 0;
+              cd = pt.data.customdata[idx];
+            } else {
+              cd = pt.data.customdata;
+            }
+            if (!cd) return;
             // debug helper: log the customdata and point
             console.log('plotly_hover customdata:', cd, 'point:', pt);
 
@@ -597,6 +622,26 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
             tooltip.innerHTML = '';
             // restore highlighted styles
             try { restoreHighlight(); } catch (e) { console.warn('Restore highlight failed', e); }
+          });
+          // cursor affordances: pointer when hovering interactive data; grabbing while clicked
+          gd.on('plotly_hover', ev => {
+            // only change cursor if the hover point has customdata (interactive)
+            const anyInteractive = ev && ev.points && ev.points.some(p => p.data && p.data.customdata !== undefined);
+            if (anyInteractive) gd.style.cursor = 'pointer';
+          });
+
+          gd.on('plotly_unhover', ev => {
+            // restore default cursor when leaving data
+            gd.style.cursor = '';
+          });
+
+          // show grabbing cursor while mouse button is down on an interactive element
+          gd.on('plotly_click', ev => {
+            const interactive = ev && ev.points && ev.points.some(p => p.data && p.data.customdata !== undefined);
+            if (!interactive) return;
+            gd.style.cursor = 'grabbing';
+            // quickly restore (user releases mouse) — this is cosmetic, tune timeout if needed
+            setTimeout(() => { gd.style.cursor = ''; }, 250);
           });
         });
       })
