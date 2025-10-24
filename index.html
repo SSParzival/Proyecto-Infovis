@@ -515,6 +515,7 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
           const tooltip = document.getElementById('custom-tooltip');
 
           let currentlyPlayingSound = null;
+          let stopSoundTimer = null;
           const player = new Tone.Player({
               loop: false, // As requested
               autostart: false,
@@ -567,6 +568,11 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
           }
 
           gd.on('plotly_hover', ev => {
+            if (stopSoundTimer) {
+                clearTimeout(stopSoundTimer);
+                stopSoundTimer = null;
+            }
+
             console.log(">--");
             console.log(ev.points);
             console.log(">--")
@@ -712,7 +718,17 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
           });
 
           gd.on('plotly_unhover', ev => {
-            stopSound();
+            // --- MODIFIED: Audio Stop Logic ---
+            // Clear any old timer just in case
+            if (stopSoundTimer) {
+                clearTimeout(stopSoundTimer);
+            }
+            // Schedule the sound to stop in 100ms
+            stopSoundTimer = setTimeout(() => {
+                stopSound(); // This is your original stop function
+                stopSoundTimer = null;
+            }, 100); // 100ms delay. You can adjust this value.
+            // --- END ---
             tooltip.style.display = 'none';
             tooltip.innerHTML = '';
 
