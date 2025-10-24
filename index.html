@@ -124,20 +124,7 @@
         const r = data.map(d => d.residuos);
         const a1 = data.map(d => d.anime_1);
         const a2 = data.map(d => d.anime_2);
-
-      //   // <<< ADD THIS SECTION >>>
-      // // 1. Setup the looping audio player
-      // const hoverSound = new Tone.Player({
-      //   // **** REPLACE THIS URL with your actual audio file ****
-      //   url: "https://tonejs.github.io/audio/berklee/gong_1.mp3", 
-      //   loop: true,
-      //   fadeOut: 0.1, // Smooth fade on stop
-      //   volume: -10     // Adjust volume as needed (in decibels)
-      // }).toDestination();
-
-      // // 2. Variable to ensure Tone.start() is only called once
-      // let audioStarted = false;
-      // // <<< END ADDED SECTION >>>
+        const s0 = data.map(d => `Entrega2/sound/${d.genero}.mp3`);
 
         const minVal = Math.min(...r);
         const maxVal = Math.max(...r);
@@ -210,10 +197,6 @@
         const residualSegments = [];
         const residualHitSegments = [];
 
-        let audioStarted = false;  // To run Tone.start() once
-        let currentPlayer = null;  // To track the currently playing sound
-        let playerCache = {};      // To store created players
-
         x.forEach((d, i) => {
           // APARENTEMENTE ESTA ES LA PARTE IMPORTANTE
           const genre = labels[i] || `Género ${i}`;
@@ -222,7 +205,6 @@
           const color = colorScale(resid, minVal, maxVal, zeroPos);
           const image1 = `Entrega2/anime_images/${genre}1.jpg`;
           const image2 = `Entrega2/anime_images/${genre}2.jpg`;
-          const audioUrl = `Entrega2/sound/${genre}.mp3`;
 
           // visible thin colored line (your original)
           residualSegments.push({
@@ -233,7 +215,12 @@
             line: { width: 2, color: color },
             showlegend: false,
             hovertemplate: '<extra></extra>', // suppress native tooltip (we handle custom)
-            customdata: { index: i, genre, oferta: x[i], demanda: y[i], resid: pct, residRaw: r[i], residScale, scaleMax, image1, image2, color: color, audioUrl  }
+            customdata: { 
+              index: i, genre, oferta: x[i], demanda: y[i], 
+              resid: pct, residRaw: r[i], residScale, scaleMax, 
+              image1, image2, color: color,
+              sound: s0[i]
+            }
           });
 
           (function () {
@@ -262,7 +249,7 @@
                 image1,
                 image2,
                 color: color,
-                audioUrl: audioUrl
+                sound: s0[i]
               });
             }
 
@@ -515,6 +502,21 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
         Plotly.newPlot('regressionPlot', [regressionLine, ...points, ...residualSegments, ...residualHitSegments], layout, config).then(gd => {
 
           const tooltip = document.getElementById('custom-tooltip');
+
+          let currentlyPlayingSound = null;
+          const player = new Tone.Player({
+              loop: false, // As requested
+              autostart: false,
+          }).toDestination();
+          
+          // Function to safely stop the player
+          function stopSound() {
+              if (currentlyPlayingSound) {
+                  player.stop();
+                  currentlyPlayingSound = null;
+              }
+          }
+
           let currentHighlight = { pointIdx: null, residIdx: null };
           function restoreHighlight() {
             // restore opacities for all point traces
@@ -576,63 +578,28 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
             // debug helper: log the customdata and point
             console.log('plotly_hover customdata:', cd, 'point:', pt);
 
-            // IMPLEMENTAR AUDIO
-            (async () => {
-            if (!audioStarted) {
-              await Tone.start();
-              audioStarted = true;
-              console.log("Audio context started.");
-            }
-
-            // 1. Get the URL from the hover data
-            const url = cd.audioUrl;
-            if (!url) {
-              // No audio for this point, stop whatever is playing
-              if (currentPlayer) currentPlayer.player.stop();
-              currentPlayer = null;
-              return;
-            }
-
-            // 2. Stop the old sound if it's different
-            if (currentPlayer && currentPlayer.url !== url) {
-              currentPlayer.player.stop();
-              currentPlayer = null;
-            }
-
-            // 3. If we are already playing this exact sound, do nothing
-            if (currentPlayer && currentPlayer.url === url) {
-              return;
-            }
-
-            // 4. Load and play the new sound
-            try {
-              let playerToPlay;
-              if (playerCache[url]) {
-                // It's in the cache, just use it
-                playerToPlay = playerCache[url];
-              } else {
-                // Not in cache: create it, store it
-                playerToPlay = new Tone.Player({
-                  url: url,
-                  loop: true,
-                  fadeOut: 0.1,
-                  volume: -10
-                }).toDestination();
-                // Wait for it to be ready before trying to play
-                await playerToPlay.load(url);
-                playerCache[url] = playerToPlay;
-              }
-
-              playerToPlay.start();
-              currentPlayer = { player: playerToPlay, url: url }; // Track it
-
-            } catch (e) {
-              console.error(`Failed to load or play audio: ${url}`, e);
-              // Stop anything that might be playing
-              if (currentPlayer) currentPlayer.player.stop();
-              currentPlayer = null;
-            }
-          })();
+            if (cd.sound && cd.sound !== currentlyPlayingSound) {
+              stopSound(); // Stop previous sound
+              currentlyPlayingSound = cd.sound; // Set new sound
+              
+              // Load and play. Using Buffer.load is safer.
+              Tone.Buffer.load(cd.sound)
+                  .then(buffer => {
+                      // Check if we are *still* hovering the same sound
+                      if (currentlyPlayingSound === cd.sound) { 
+                          player.buffer = buffer;
+                          player.start();
+                          console.log("Playing:", cd.sound);
+                      }
+                      // else: Hover changed again before this one loaded, so don't play
+                  })
+                  .catch(err => {
+                      console.error("Error loading audio:", cd.sound, err);
+                      if (currentlyPlayingSound === cd.sound) {
+                          currentlyPlayingSound = null; // Reset on error
+                      }
+                  });
+          }
 
             // highlight corresponding point and residual line
             // compute trace indices: regressionLine is at 0, points start at 1, residuals start at 1 + nPoints
@@ -734,13 +701,10 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
           });
 
           gd.on('plotly_unhover', ev => {
+            stopSound();
             tooltip.style.display = 'none';
             tooltip.innerHTML = '';
 
-            if (currentPlayer) {
-              currentPlayer.player.stop();
-              currentPlayer = null;
-            }
             // restore highlighted styles
             try { restoreHighlight(); } catch (e) { console.warn('Restore highlight failed', e); }
           });
@@ -760,6 +724,11 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
           gd.on('plotly_click', ev => {
             const interactive = ev && ev.points && ev.points.some(p => p.data && p.data.customdata !== undefined);
             if (!interactive) return;
+
+            Tone.start().then(() => {
+                console.log("AudioContext started!");
+            });
+
             gd.style.cursor = 'grabbing';
             // quickly restore (user releases mouse) — this is cosmetic, tune timeout if needed
             setTimeout(() => { gd.style.cursor = ''; }, 250);
