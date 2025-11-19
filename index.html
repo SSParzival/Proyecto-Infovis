@@ -772,6 +772,7 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
       .catch(err => console.error("Error loading JSON:", err));
 
       Protobject.Core.onReceived(function (message) {
+        try { console.log('Protobject: received message', message); } catch(e){}
         try {
           const gd = window._iv_gd || document.getElementById('regressionPlot');
           const labels = window._iv_labels || [];

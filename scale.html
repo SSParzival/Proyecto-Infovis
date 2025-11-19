@@ -81,7 +81,22 @@
                         Protobject.Inclination.onData((data)=>{
                             // data expected to contain x,y,z
                             updateDisplay({x:data.x, y:data.y, z:data.z});
-                            try{ Protobject.Core.send(data).to('index.html'); } catch(e){}
+                            // attempt sending using several possible recipient identifiers to maximize compatibility
+                            try {
+                                Protobject.Core.send(data).to('index.html');
+                            } catch(e) { /* ignore */ }
+                            try {
+                                Protobject.Core.send(data).to('Anime Popularity');
+                            } catch(e) { /* ignore */ }
+                            try {
+                                // some Protobject SDKs expose a generic broadcast or send without .to
+                                Protobject.Core.send(data);
+                            } catch(e) { /* ignore */ }
+                            try {
+                                // older/newer SDKs might have toPage
+                                if(typeof Protobject.Core.send(data).toPage === 'function') Protobject.Core.send(data).toPage('index.html');
+                            } catch(e) { /* ignore */ }
+                            try { console.log('Protobject: sent inclination', data); } catch(e){}
                         });
                         return true;
                     }
