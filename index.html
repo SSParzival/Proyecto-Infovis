@@ -108,6 +108,8 @@
 </head>
 
 <body>
+  <script src="https://app.protobject.com/framework/p.js"></script>
+  <script src="config.js"></script>
   <div class="center" id="regressionPlot" style="width:1224px;height:800px;"></div>
   <div id="custom-tooltip" aria-hidden="true"></div>
   <script>
@@ -763,6 +765,10 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
         });
       })
       .catch(err => console.error("Error loading JSON:", err));
+
+      Protobject.Core.onReceived(function (message) {
+        console.log(message.x);
+      });
   </script>
 </body>
 

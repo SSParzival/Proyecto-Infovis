@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head></head>
+    <body>
+        <script src="https://app.protobject.com/framework/p.js"></script>
+        <script src="config.js"></script>
+        <h1>Coloca el celular en la balanza.</h1>
+        <script>
+            const scale = new Protobject.Inclination();
+            Protobject.Inclination.onData((data) => {
+                Protobject.Core.send(data).to("index.html");
+                console.log("X: " + data.x + "; Y: " + data.y + "; Z: " + data.z);
+            });
+        </script>
+    </body>
+</html>
