@@ -771,8 +771,9 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
       })
       .catch(err => console.error("Error loading JSON:", err));
 
-      Protobject.Core.onReceived(function (message) {
-        try { console.log('Protobject: received message', message); } catch(e){}
+      // centralized handler for incoming tilt messages (Protobject or BroadcastChannel)
+      function handleTiltMessage(message){
+        try { console.log('Tilt message received', message); } catch(e){}
         try {
           const gd = window._iv_gd || document.getElementById('regressionPlot');
           const labels = window._iv_labels || [];
@@ -801,24 +802,36 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
             if (idx >= 0 && gd && Plotly && Plotly.Fx) {
               const residTrace = 1 + nPoints + idx;
               Plotly.Fx.hover(gd, [{ curveNumber: residTrace, pointNumber: 0 }]);
-              // auto clear after 1.5s
-              setTimeout(() => { try{ Plotly.Fx.unhover(gd); } catch(e){} }, 1500);
             }
           } else if (message.x <= -15) {
             const idx = findIndexByName('Harem');
             if (idx >= 0 && gd && Plotly && Plotly.Fx) {
               const residTrace = 1 + nPoints + idx;
               Plotly.Fx.hover(gd, [{ curveNumber: residTrace, pointNumber: 0 }]);
-              setTimeout(() => { try{ Plotly.Fx.unhover(gd); } catch(e){} }, 1500);
             }
           } else {
             // if in middle range, clear any programmatic hover
             if (gd && Plotly && Plotly.Fx) try{ Plotly.Fx.unhover(gd); } catch(e){}
           }
         } catch (e) {
-          console.warn('Protobject message handling failed', e);
+          console.warn('Tilt message handling failed', e);
         }
+      }
+
+      // wire Protobject receiver to centralized handler
+      Protobject.Core.onReceived(function (message) {
+        try { console.log('Protobject: received message', message); } catch(e){}
+        handleTiltMessage(message);
+        try { if(window.onRemoteConnect) window.onRemoteConnect({via:'protobject', page:'index'}); } catch(e){}
       });
+
+      // create BroadcastChannel fallback and wire it
+      try{
+        const _bc = new BroadcastChannel('infovis-tilt');
+        _bc.onmessage = ev => { try{ handleTiltMessage(ev.data); if(window.onRemoteConnect) window.onRemoteConnect({via:'broadcast', page:'index'}); } catch(e){} };
+        window._infovis_bc = _bc;
+        try { if(window.onRemoteConnect) window.onRemoteConnect({via:'broadcast', page:'index'}); } catch(e){}
+      }catch(e){ /* BroadcastChannel not supported */ }
   </script>
 </body>
 

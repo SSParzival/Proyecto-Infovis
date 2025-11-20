@@ -33,6 +33,18 @@
         </div>
 
         <script>
+            // simple connection callbacks (can be overridden by the app)
+            window.onRemoteConnect = window.onRemoteConnect || function(info){ console.log('onRemoteConnect', info); };
+            window.onRemoteDisconnect = window.onRemoteDisconnect || function(info){ console.log('onRemoteDisconnect', info); };
+
+            // create a BroadcastChannel fallback for local testing
+            let _bc = null;
+            try {
+                _bc = new BroadcastChannel('infovis-tilt');
+                window._infovis_bc = _bc;
+                // notify local connect
+                try { window.onRemoteConnect({via:'broadcast', page:'scale'}); } catch(e){}
+            } catch(e) { _bc = null; }
             const elX = document.getElementById('tilt-x');
             const elY = document.getElementById('tilt-y');
             const elZ = document.getElementById('tilt-z');
@@ -97,6 +109,10 @@
                                 if(typeof Protobject.Core.send(data).toPage === 'function') Protobject.Core.send(data).toPage('index.html');
                             } catch(e) { /* ignore */ }
                             try { console.log('Protobject: sent inclination', data); } catch(e){}
+                            // also broadcast locally for fallback receivers
+                            try { if(_bc) _bc.postMessage(data); } catch(e){}
+                            // notify connect on first successful start
+                            try { window.onRemoteConnect({via:'protobject', page:'scale'}); } catch(e){}
                         });
                         return true;
                     }
