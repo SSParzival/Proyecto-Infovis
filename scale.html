@@ -3,164 +3,19 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <style>
-            body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:0;padding:18px;background:#fff;color:#111}
-            h1{font-size:20px;margin:0 0 12px}
-            #tilt-ui{display:flex;flex-direction:column;gap:10px;align-items:center}
-            .tilt-card{background:#f7f7f8;border:1px solid #e2e2e6;padding:12px 16px;border-radius:10px;width:320px;max-width:92vw;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
-            .tilt-row{display:flex;justify-content:space-between;align-items:center;font-size:14px;padding:6px 0}
-            .tilt-key{color:#444}
-            .tilt-val{font-weight:700;font-size:18px}
-            #tilt-angle{font-size:28px;font-weight:900;text-align:center;margin-top:6px}
-            #enable-btn{display:inline-block;padding:8px 12px;border-radius:8px;border:none;background:#0078d4;color:#fff;font-weight:700}
-            @media (prefers-color-scheme:dark){body{background:#111;color:#eee}.tilt-card{background:#111;border-color:#222}}
-        </style>
     </head>
     <body>
         <script src="https://app.protobject.com/framework/p.js"></script>
         <script src="config.js"></script>
-        <div id="tilt-ui">
-            <h1>Coloca el celular en la balanza y muévelo de lado a lado</h1>
-            <div class="tilt-card">
-                <div class="tilt-row"><div class="tilt-key">X (raw)</div><div id="tilt-x" class="tilt-val">—</div></div>
-                <div class="tilt-row"><div class="tilt-key">Y (raw)</div><div id="tilt-y" class="tilt-val">—</div></div>
-                <div class="tilt-row"><div class="tilt-key">Z (raw)</div><div id="tilt-z" class="tilt-val">—</div></div>
-                <div id="tilt-angle">Ángulo: —°</div>
-            </div>
-            <div>
-                <button id="enable-btn" style="display:none">Habilitar sensores</button>
-            </div>
-        </div>
 
         <script>
-            // simple connection callbacks (can be overridden by the app)
-            window.onRemoteConnect = window.onRemoteConnect || function(info){ console.log('onRemoteConnect', info); };
-            window.onRemoteDisconnect = window.onRemoteDisconnect || function(info){ console.log('onRemoteDisconnect', info); };
 
-            // create a BroadcastChannel fallback for local testing
-            let _bc = null;
-            try {
-                _bc = new BroadcastChannel('infovis-tilt');
-                window._infovis_bc = _bc;
-                // notify local connect
-                try { window.onRemoteConnect({via:'broadcast', page:'scale'}); } catch(e){}
-            } catch(e) { _bc = null; }
-            const elX = document.getElementById('tilt-x');
-            const elY = document.getElementById('tilt-y');
-            const elZ = document.getElementById('tilt-z');
-            const elAngle = document.getElementById('tilt-angle');
-            const enableBtn = document.getElementById('enable-btn');
+            Protobject.Inclination.start(80); //generate events each 300 ms
 
-            function format(n){
-                if(n === null || n === undefined || Number.isNaN(n)) return '—';
-                return (typeof n === 'number') ? n.toFixed(3) : String(n);
-            }
+Protobject.Inclination.onData((data) => {
+    Protobject.Core.send(data.y).to("index.html");
+});
 
-            // simple low-pass filter to smooth values
-            function makeSmoother(alpha){
-                let s = null;
-                return v => {
-                    if(s===null){ s = v; return v; }
-                    s = alpha * v + (1-alpha) * s;
-                    return s;
-                }
-            }
-            const smoothX = makeSmoother(0.25);
-            const smoothY = makeSmoother(0.25);
-            const smoothZ = makeSmoother(0.25);
-
-            function updateDisplay(vals){
-                // vals: {x,y,z} where numbers expected
-                const sx = smoothX(Number(vals.x) || 0);
-                const sy = smoothY(Number(vals.y) || 0);
-                const sz = smoothZ(Number(vals.z) || 0);
-                elX.textContent = format(sx);
-                elY.textContent = format(sy);
-                elZ.textContent = format(sz);
-                // compute simple roll angle (tilt side-to-side) in degrees
-                // use atan2(y, z) to approximate roll; fallback if z is near zero
-                const rollRad = Math.atan2(sy, sz || 1e-6);
-                const rollDeg = rollRad * 180 / Math.PI;
-                elAngle.textContent = `Ángulo: ${rollDeg.toFixed(1)}°`;
-            }
-
-            // try using Protobject if available
-            function startProtobject(){
-                try{
-                    if(window.Protobject && Protobject.Inclination){
-                        // create and subscribe
-                        try{ new Protobject.Inclination(); } catch(e){}
-                        Protobject.Inclination.onData((data)=>{
-                            // data expected to contain x,y,z
-                            updateDisplay({x:data.x, y:data.y, z:data.z});
-                            // attempt sending using several possible recipient identifiers to maximize compatibility
-                            try {
-                                Protobject.Core.send(data).to('index.html');
-                            } catch(e) { /* ignore */ }
-                            try {
-                                Protobject.Core.send(data).to('Anime Popularity');
-                            } catch(e) { /* ignore */ }
-                            try {
-                                // some Protobject SDKs expose a generic broadcast or send without .to
-                                Protobject.Core.send(data);
-                            } catch(e) { /* ignore */ }
-                            try {
-                                // older/newer SDKs might have toPage
-                                if(typeof Protobject.Core.send(data).toPage === 'function') Protobject.Core.send(data).toPage('index.html');
-                            } catch(e) { /* ignore */ }
-                            try { console.log('Protobject: sent inclination', data); } catch(e){}
-                            // also broadcast locally for fallback receivers
-                            try { if(_bc) _bc.postMessage(data); } catch(e){}
-                            // notify connect on first successful start
-                            try { window.onRemoteConnect({via:'protobject', page:'scale'}); } catch(e){}
-                        });
-                        return true;
-                    }
-                }catch(e){ console.warn('Protobject start failed', e); }
-                return false;
-            }
-
-            // fallback: use DeviceOrientation (gamma ~ left/right tilt, beta ~ front/back)
-            function startDeviceOrientation(){
-                function handler(ev){
-                    // ev.beta (x) front/back, ev.gamma (y) left/right, ev.alpha (z) compass
-                    const beta = ev.beta;   // -180 .. 180
-                    const gamma = ev.gamma; // -90 .. 90
-                    const alpha = ev.alpha; // 0 .. 360
-                    // map to x/y/z-ish values for display
-                    const x = beta; // pitch
-                    const y = gamma; // roll
-                    const z = alpha;
-                    updateDisplay({x,y,z});
-                }
-                window.addEventListener('deviceorientation', handler);
-            }
-
-            // iOS 13+ requires an explicit permission request for deviceorientation events
-            function requirePermissionThenStart(){
-                if(typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function'){
-                    enableBtn.style.display = '';
-                    enableBtn.addEventListener('click', ()=>{
-                        DeviceMotionEvent.requestPermission().then(res => {
-                            if(res === 'granted'){
-                                startDeviceOrientation();
-                                enableBtn.style.display = 'none';
-                            } else {
-                                alert('Permiso denegado para sensores');
-                            }
-                        }).catch(err => { console.warn(err); alert('No se pudo solicitar permiso: '+err); });
-                    });
-                } else {
-                    // no permission dance needed, start immediately
-                    startDeviceOrientation();
-                }
-            }
-
-            // init: try Protobject first, otherwise use standard sensors (with permission flow)
-            const startedProto = startProtobject();
-            if(!startedProto){
-                requirePermissionThenStart();
-            }
 
         </script>
     </body>

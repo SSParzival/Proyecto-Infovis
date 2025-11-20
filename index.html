@@ -771,67 +771,24 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
       })
       .catch(err => console.error("Error loading JSON:", err));
 
-      // centralized handler for incoming tilt messages (Protobject or BroadcastChannel)
-      function handleTiltMessage(message){
-        try { console.log('Tilt message received', message); } catch(e){}
-        try {
-          const gd = window._iv_gd || document.getElementById('regressionPlot');
-          const labels = window._iv_labels || [];
-          const nPoints = window._iv_nPoints || (labels.length || 0);
 
-          function findIndexByName(name){
-            if(!name) return -1;
-            const nl = name.toLowerCase().trim();
-            for(let i=0;i<labels.length;i++){
-              const L = (labels[i] || '').toString().toLowerCase().trim();
-              if(L === nl) return i;
-            }
-            // fallback: contains
-            for(let i=0;i<labels.length;i++){
-              const L = (labels[i] || '').toString().toLowerCase();
-              if(L.indexOf(nl) !== -1) return i;
-            }
-            return -1;
-          }
+    Protobject.Core.onReceived(function (message) {
+    console.log("Received:", message);
 
-          if(!message || typeof message.x !== 'number') return;
+    let category = null;
 
-          // threshold behavior
-          if (message.x >= 15) {
-            const idx = findIndexByName('Action');
-            if (idx >= 0 && gd && Plotly && Plotly.Fx) {
-              const residTrace = 1 + nPoints + idx;
-              Plotly.Fx.hover(gd, [{ curveNumber: residTrace, pointNumber: 0 }]);
-            }
-          } else if (message.x <= -15) {
-            const idx = findIndexByName('Harem');
-            if (idx >= 0 && gd && Plotly && Plotly.Fx) {
-              const residTrace = 1 + nPoints + idx;
-              Plotly.Fx.hover(gd, [{ curveNumber: residTrace, pointNumber: 0 }]);
-            }
-          } else {
-            // if in middle range, clear any programmatic hover
-            if (gd && Plotly && Plotly.Fx) try{ Plotly.Fx.unhover(gd); } catch(e){}
-          }
-        } catch (e) {
-          console.warn('Tilt message handling failed', e);
-        }
-      }
+    if (message >= -1 && message <= 1) {
+        category = "Neutro";
+    } else if (message >= -4 && message <= -1.5) {
+        category = "Action";
+    } else if (message >= 1.5 && message <= 3) {
+        category = "Harem";
+    } else {
+        category = "Unknown"; // Optional: for values outside all intervals
+    }
 
-      // wire Protobject receiver to centralized handler
-      Protobject.Core.onReceived(function (message) {
-        try { console.log('Protobject: received message', message); } catch(e){}
-        handleTiltMessage(message);
-        try { if(window.onRemoteConnect) window.onRemoteConnect({via:'protobject', page:'index'}); } catch(e){}
-      });
-
-      // create BroadcastChannel fallback and wire it
-      try{
-        const _bc = new BroadcastChannel('infovis-tilt');
-        _bc.onmessage = ev => { try{ handleTiltMessage(ev.data); if(window.onRemoteConnect) window.onRemoteConnect({via:'broadcast', page:'index'}); } catch(e){} };
-        window._infovis_bc = _bc;
-        try { if(window.onRemoteConnect) window.onRemoteConnect({via:'broadcast', page:'index'}); } catch(e){}
-      }catch(e){ /* BroadcastChannel not supported */ }
+    console.log("Category:", category);
+});
   </script>
 </body>
 
