@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+    </head>
+    <body>
+        <script src="https://app.protobject.com/framework/p.js"></script>
+        <script src="config.js"></script>
+
+        <script>
+
+            Protobject.Inclination.start(80); //generate events each 300 ms
+
+Protobject.Inclination.onData((data) => {
+    Protobject.Core.send(data.y).to("index.html");
+});
+
+
+        </script>
+    </body>
+</html>

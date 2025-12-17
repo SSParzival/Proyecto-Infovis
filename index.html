@@ -108,6 +108,8 @@
 </head>
 
 <body>
+  <script src="https://app.protobject.com/framework/p.js"></script>
+  <script src="config.js"></script>
   <div class="center" id="regressionPlot" style="width:1224px;height:800px;"></div>
   <div id="custom-tooltip" aria-hidden="true"></div>
   <script>
@@ -119,6 +121,8 @@
         // console.log(data);
         // Extract variables
         const labels = data.map(d => d.genero);
+        // expose labels for external controllers (Protobject messages)
+        try { window._iv_labels = labels; } catch(e) {}
         const x = data.map(d => d.proporcion);
         const y = data.map(d => d.popularidad);
         const r = data.map(d => d.residuos);
@@ -512,10 +516,14 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
 
         Plotly.newPlot('regressionPlot', [regressionLine, ...points, ...residualSegments, ...residualHitSegments], layout, config).then(gd => {
 
+          // expose graph div and point count for external control
+          try { window._iv_gd = gd; window._iv_nPoints = (points && points.length) ? points.length : 0; } catch(e) {}
+
           const tooltip = document.getElementById('custom-tooltip');
 
           let currentlyPlayingSound = null;
           let stopSoundTimer = null;
+          let hoverCardTimer = null;
           const player = new Tone.Player({
               loop: false, // As requested
               autostart: false,
@@ -572,6 +580,7 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
                 clearTimeout(stopSoundTimer);
                 stopSoundTimer = null;
             }
+            if (hoverCardTimer) { clearTimeout(hoverCardTimer); hoverCardTimer = null; }
 
             console.log(">--");
             console.log(ev.points);
@@ -723,6 +732,7 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
             if (stopSoundTimer) {
                 clearTimeout(stopSoundTimer);
             }
+            if (hoverCardTimer) { clearTimeout(hoverCardTimer); hoverCardTimer = null; }
             // Schedule the sound to stop in 100ms
             stopSoundTimer = setTimeout(() => {
                 stopSound(); // This is your original stop function
@@ -760,9 +770,218 @@ mientras que Kids y Harem sobresalen por un exceso de oferta frente a su demanda
             // quickly restore (user releases mouse) — this is cosmetic, tune timeout if needed
             setTimeout(() => { gd.style.cursor = ''; }, 250);
           });
+          // Programmatic card display: show/clear the same tooltip used by pointer hover
+          window.showHoverCard = function (idx, opts = {}) {
+            try {
+              if (typeof idx !== 'number') return;
+              if (idx < 0 || idx >= nPoints) return;
+              // clear any pending stop timer
+              if (stopSoundTimer) { clearTimeout(stopSoundTimer); stopSoundTimer = null; }
+
+              const i = idx;
+              const genre = labels[i] || `Género ${i}`;
+              const color = colorScale(r[i], minVal, maxVal, zeroPos);
+              const cd = {
+                index: i,
+                genre,
+                oferta: x[i],
+                demanda: y[i],
+                resid: (r[i] * 100).toFixed(2),
+                residRaw: r[i],
+                residScale,
+                scaleMax,
+                image1: `Entrega2/anime_images/${genre}1.jpg`,
+                image2: `Entrega2/anime_images/${genre}2.jpg`,
+                color: color,
+                sound: s0[i]
+              };
+
+              // play sound (same behavior as hover)
+              if (cd.sound && cd.sound !== currentlyPlayingSound) {
+                stopSound();
+                currentlyPlayingSound = cd.sound;
+                Tone.Buffer.load(cd.sound)
+                  .then(buffer => {
+                    if (currentlyPlayingSound === cd.sound) {
+                      player.buffer = buffer;
+                      player.start();
+                    }
+                  })
+                  .catch(err => {
+                    console.error('Error loading audio:', cd.sound, err);
+                    if (currentlyPlayingSound === cd.sound) currentlyPlayingSound = null;
+                  });
+              }
+
+              // highlight and draw arrow similar to pointer hover
+              try {
+                restoreHighlight();
+                if (gd._hoverArrowTraceIdx !== undefined) {
+                  Plotly.deleteTraces(gd, gd._hoverArrowTraceIdx);
+                  gd._hoverArrowTraceIdx = undefined;
+                }
+                Plotly.addTraces(gd, {
+                  x: [cd.oferta, cd.oferta],
+                  y: [cd.demanda, cd.oferta],
+                  mode: 'lines',
+                  line: { width: 2, color: cd.color || 'black' },
+                  hoverinfo: 'skip',
+                  showlegend: false,
+                  hoveron: false
+                }).then(() => { gd._hoverArrowTraceIdx = gd.data.length - 1; });
+
+                const lowOpacity = 0.18;
+                try {
+                  Plotly.restyle(gd, { 'opacity': lowOpacity }, pointTraceIndices);
+                  Plotly.restyle(gd, { 'opacity': lowOpacity }, residualTraceIndices);
+                } catch (e) {
+                  pointTraceIndices.forEach(t => Plotly.restyle(gd, { 'opacity': lowOpacity }, [t]));
+                  residualTraceIndices.forEach(t => Plotly.restyle(gd, { 'opacity': lowOpacity }, [t]));
+                }
+                const pointTraceIndex = 1 + cd.index;
+                const residualTraceIndex = 1 + nPoints + cd.index;
+                Plotly.restyle(gd, { 'opacity': 1 }, [pointTraceIndex]);
+                Plotly.restyle(gd, { 'opacity': 1 }, [residualTraceIndex]);
+                currentHighlight = { pointIdx: pointTraceIndex, residIdx: residualTraceIndex };
+              } catch (e) {
+                console.warn('showHoverCard highlight failed', e);
+              }
+
+              // Build tooltip HTML (same as pointer hover)
+              const ofertaVal = Number.isFinite(Number(cd.oferta)) ? Number(cd.oferta) : 0;
+              const demandaVal = Number.isFinite(Number(cd.demanda)) ? Number(cd.demanda) : 0;
+              const scale = (cd && cd.scaleMax) ? cd.scaleMax : Math.max(ofertaVal, demandaVal, 0.0001);
+
+              const imgHtml = cd.image1 ? `<img src="${cd.image1}" class="ct-img" onerror="this.style.display='none';console.warn('img load failed', this.src)"/>` : '';
+              const imgHtml2 = cd.image2 ? `<img src="${cd.image2}" class="ct-img" onerror="this.style.display='none';console.warn('img load failed', this.src)"/>` : '';
+              const anime1 = a1[cd.index];
+              const anime2 = a2[cd.index];
+              const residValNum = Number.isFinite(Number(cd.residRaw)) ? Number(cd.residRaw) : 0;
+              const residMaxNum = (cd && cd.residScale) ? Math.abs(cd.residScale) : Math.max(Math.abs(residValNum), 0.0001);
+              const residRatio = Math.min(1, Math.abs(residValNum) / residMaxNum);
+              const residPercent = Math.max(0, Math.min(50, residRatio * 50));
+              const residPctText = Number.isFinite(residValNum) ? (residValNum * 100).toFixed(2) + '%' : 'N/A';
+
+              const residBarHtml = `
+                <div style="margin-top:8px">
+                  <div style="font-weight:600;margin-bottom:6px;text-align:center">Residuo</div>
+                  <div style="position:relative;height:14px;background:#eee;overflow:hidden">
+                    <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#bbb;transform:translateX(-0.5px)"></div>
+                    ${residValNum >= 0 ? `<div style="position:absolute;left:50%;top:0;height:100%;width:${residPercent}%;background:#0000ff"></div>` : `<div style="position:absolute;left:${50 - residPercent}%;top:0;height:100%;width:${residPercent}%;background:#de2d26"></div>`}
+                  </div>
+                  <div style="text-align:center;font-size:12px;color:#444;margin-top:6px">${residPctText}</div>
+                </div>
+              `;
+
+              tooltip.innerHTML = `
+                <div style="font-size:16px;font-weight:800;margin-bottom:8px;text-align:center">${cd.genre}</div>
+                <div style="display:flex;align-items:flex-start;gap:12px">
+                  <div style="flex:1;min-width:180px">
+                    ` + renderBars(ofertaVal, demandaVal, scale) + `
+                    ${residBarHtml}
+                  </div>
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:6px;min-width:88px">
+                    ${imgHtml}
+                    <div style="font-size:12px;text-align:center;max-width:84px;word-break:break-word">${anime1 || ''}</div>
+                  </div>
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:6px;min-width:88px">
+                    ${imgHtml2}
+                    <div style="font-size:12px;text-align:center;max-width:88px;word-break:break-word">${anime2 || ''}</div>
+                  </div>
+                </div>
+              `;
+
+              // position tooltip at a fixed spot relative to the plot area (top-left corner inside plot)
+              const rect = gd.getBoundingClientRect();
+              tooltip.style.display = 'block';
+              // small offset from plot top-left
+              const left = Math.max(700, rect.left + 1);
+              const top = Math.max(200, rect.top + 12);
+              tooltip.style.left = (left) + 'px';
+              tooltip.style.top = (top) + 'px';
+              // auto-hide after 5 seconds unless another show/hover happens
+              if (hoverCardTimer) { clearTimeout(hoverCardTimer); hoverCardTimer = null; }
+              hoverCardTimer = setTimeout(() => { try { window.clearHoverCard(); } catch (e) {} }, 5000);
+            } catch (e) {
+              console.warn('showHoverCard error', e);
+            }
+          };
+
+          window.clearHoverCard = function () {
+            try {
+              if (stopSoundTimer) { clearTimeout(stopSoundTimer); stopSoundTimer = null; }
+              if (hoverCardTimer) { clearTimeout(hoverCardTimer); hoverCardTimer = null; }
+              stopSound();
+              tooltip.style.display = 'none';
+              tooltip.innerHTML = '';
+              if (gd && gd._hoverArrowTraceIdx !== undefined) {
+                try { Plotly.deleteTraces(gd, gd._hoverArrowTraceIdx); } catch (e) {}
+                gd._hoverArrowTraceIdx = undefined;
+              }
+              try { restoreHighlight(); } catch (e) { console.warn('clearHoverCard restore failed', e); }
+            } catch (e) {
+              console.warn('clearHoverCard error', e);
+            }
+          };
         });
       })
       .catch(err => console.error("Error loading JSON:", err));
+
+
+    Protobject.Core.onReceived(function (message) {
+      try { console.log('Protobject: received raw message', message); } catch (e) {}
+
+      let category = null;
+      if (val >= -1 && val <= 1) {
+        category = 'Neutro';
+      } else if (val >= -4 && val <= -1.5) {
+        category = 'Action';
+      } else if (val >= 1.5 && val <= 3) {
+        category = 'Harem';
+      } else {
+        // outside defined ranges -> treat as Neutro to avoid unexpected hovers
+        category = 'Neutro';
+      }
+
+
+      try { console.log('Protobject: mapped category', category, 'from', val); } catch (e) {}
+
+      // now show/hide hover strictly for Action / Harem / Neutro
+      try {
+        const labels = window._iv_labels || [];
+        const nPoints = window._iv_nPoints || (labels.length || 0);
+        const gd = window._iv_gd || document.getElementById('regressionPlot');
+
+        if (category === 'Neutro') {
+          if (window.clearHoverCard) try { window.clearHoverCard(); } catch (e) {}
+          return;
+        }
+
+        // find index of the requested genre (exact then contains)
+        const target = category.toLowerCase();
+        let idx = -1;
+        for (let i = 0; i < labels.length; i++) {
+          if ((labels[i] || '').toString().toLowerCase().trim() === target) { idx = i; break; }
+        }
+        if (idx === -1) {
+          for (let i = 0; i < labels.length; i++) {
+            if ((labels[i] || '').toString().toLowerCase().indexOf(target) !== -1) { idx = i; break; }
+          }
+        }
+
+        if (idx >= 0) {
+          // Instead of using Plotly.Fx.hover (which requires pointer events),
+          // show our custom hover card at a fixed position for the requested index.
+          if (window.showHoverCard) {
+            try { window.showHoverCard(idx); } catch (e) { console.warn('showHoverCard failed', e); }
+          }
+        } else {
+          console.warn('Protobject: requested genre not found:', category);
+        }
+      } catch (e) {
+        console.warn('Protobject: handler error', e);
+      }
+    });
   </script>
 </body>
 
